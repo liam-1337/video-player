@@ -1,0 +1,14 @@
+.MediaGrid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* Center items in the grid */
+  gap: 15px; /* Space between cards */
+  padding: 20px;
+}
+
+.MediaGrid-Empty {
+  text-align: center;
+  font-size: 1.1em;
+  color: #666;
+  padding: 30px;
+}
