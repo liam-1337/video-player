@@ -1,4 +1,5 @@
 @echo off
+PUSHD %~dp0
 echo Starting Media Hub Server...
 echo.
 
