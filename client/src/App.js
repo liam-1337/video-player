@@ -12,6 +12,7 @@ import RegisterForm from './components/auth/RegisterForm';
 import ContinueWatchingSection from './components/sections/ContinueWatchingSection';
 import SharedWithMePage from './pages/SharedWithMePage';
 import WatchTogetherPage from './pages/WatchTogetherPage';
+import ExternalMediaSearchPage from './pages/ExternalMediaSearchPage'; // Import the new page
 
 import 'plyr/dist/plyr.css';
 import './App.css';
@@ -68,7 +69,7 @@ function AppContent() {
   return (
     <div className="App">
       <header className="App-Header">
-        <div className="App-Header-TopRow"> <Link to="/" className="App-Logo"><h1>My Media Hub</h1></Link> <div className="App-Header-UserControls"> {isAuthenticated && currentUser ? (<> <span className="UserInfo">Hi, {currentUser.username}!</span> <Link to="/shared-with-me" className="AuthBtn SmallBtn" title="Media shared with you">Shared</Link> <button onClick={() => { logout(); navigate('/login'); }} className="AuthBtn">Logout</button> </>) : (<> <Link to="/login" className="AuthBtn">Login</Link> <Link to="/register" className="AuthBtn">Register</Link> </>)} <button onClick={handleThemeToggle} className="ThemeToggleBtn" aria-label="Toggle theme">{theme === 'light' ? '🌙' : '☀️'}</button> </div> </div>
+        <div className="App-Header-TopRow"> <Link to="/" className="App-Logo"><h1>My Media Hub</h1></Link> <div className="App-Header-UserControls"> {isAuthenticated && currentUser ? (<> <span className="UserInfo">Hi, {currentUser.username}!</span> <Link to="/shared-with-me" className="AuthBtn SmallBtn" title="Media shared with you">Shared</Link> <Link to="/search-external" className="AuthBtn SmallBtn" title="Search External Media">External Search</Link> <button onClick={() => { logout(); navigate('/login'); }} className="AuthBtn">Logout</button> </> </>) : (<> <Link to="/login" className="AuthBtn">Login</Link> <Link to="/register" className="AuthBtn">Register</Link> </>)} <button onClick={handleThemeToggle} className="ThemeToggleBtn" aria-label="Toggle theme">{theme === 'light' ? '🌙' : '☀️'}</button> </div> </div>
         {isAuthenticated && (<> <div className="App-Controls"> <div className="App-SearchContainer"><input type="text" placeholder="Search..." className="App-SearchInput" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} /></div> <div className="App-SortContainer"><label htmlFor="sortOptions">Sort: </label><select id="sortOptions" value={sortOption} onChange={handleSortChange} className="App-SortSelect"><option value="lastModified_desc">Date (Newest)</option><option value="lastModified_asc">Date (Oldest)</option><option value="title_asc">Title (A-Z)</option><option value="title_desc">Title (Z-A)</option><option value="size_asc">Size (Smallest)</option><option value="size_desc">Size (Largest)</option><option value="recentlyPlayed_desc">Recently Played</option></select></div></div> <MediaUpload onUploadSuccess={handleUploadSuccess} /> </>)}
         {isRefreshing && isAuthenticated && <div className="App-Status App-Refreshing">Refreshing...</div>}
         {error && !isRefreshing && isAuthenticated && <div className="App-Status App-Error-Inline">Error fetching media: {error}</div>}
@@ -80,6 +81,7 @@ function AppContent() {
           <Route path="/register" element={isAuthenticated ? <Navigate to="/" /> : <RegisterForm />} />
           <Route path="/shared-with-me" element={<ProtectedRoute><SharedWithMePage onPlayMedia={handlePlayMedia} /></ProtectedRoute>} />
           <Route path="/watch/:encodedMediaIdFromUrl/together" element={<ProtectedRoute><WatchTogetherPage /></ProtectedRoute>} />
+          <Route path="/search-external" element={<ProtectedRoute><ExternalMediaSearchPage /></ProtectedRoute>} /> {/* New Route */}
           <Route path="/" element={ <ProtectedRoute> {loadingMedia && mediaList.length === 0 && !error ? <div className="App-Status App-Loading">Loading media...</div> : error && mediaList.length === 0 && !isRefreshing ? <div className="App-Status App-Error">Error: {error}</div> : (<> <ContinueWatchingSection onPlayMedia={handlePlayMedia} refreshKey={refreshKey} /> <MediaGrid mediaList={filteredMediaList} onPlayMedia={handlePlayMedia} /> </>)} </ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

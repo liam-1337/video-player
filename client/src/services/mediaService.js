@@ -95,3 +95,24 @@ export const uploadMediaFile = async (file, onUploadProgress) => {
   try { const response = await authAxios.post('/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' }, onUploadProgress: e => { if (onUploadProgress && e.total) onUploadProgress(Math.round((e.loaded * 100) / e.total)); } }); return response.data; }
   catch (error) { console.error('Upload error:', error.response?.data || error.message); throw error.response ? error.response.data : new Error('Upload failed'); }
 };
+
+// --- External API Search Functions ---
+export const searchE621 = async (tags) => {
+  try {
+    const response = await authAxios.get('/api/e621/search', { params: { tags } });
+    return response.data;
+  } catch (error) {
+    console.error('Error searching e621:', error.response ? error.response.data : error.message);
+    throw error.response ? error.response.data : new Error('e621 search failed');
+  }
+};
+
+export const searchRule34 = async (tags) => {
+  try {
+    const response = await authAxios.get('/api/rule34/search', { params: { tags } });
+    return response.data;
+  } catch (error) {
+    console.error('Error searching Rule34:', error.response ? error.response.data : error.message);
+    throw error.response ? error.response.data : new Error('Rule34 search failed');
+  }
+};

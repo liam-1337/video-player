@@ -1,0 +1,15 @@
+.external-media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Responsive grid */
+  gap: 20px; /* Space between cards */
+  padding: 20px;
+  justify-content: center;
+}
+
+.loading-indicator,
+.no-results-message {
+  text-align: center;
+  font-size: 1.2em;
+  color: #555;
+  padding: 30px;
+}
