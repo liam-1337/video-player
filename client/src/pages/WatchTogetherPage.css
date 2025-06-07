@@ -1,0 +1,20 @@
+.WatchTogetherPage { display: flex; flex-direction: column; gap: 15px; padding: 15px; height: calc(100vh - var(--header-height, 120px) - 30px); box-sizing: border-box; }
+.MediaPlayerAreaWatchTogether { flex: 3; min-height: 0; background-color: var(--card-bg-color); padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display:flex; flex-direction:column;}
+.MediaPlayerAreaWatchTogether h3 { margin-top: 0; color: var(--text-color); font-size: 1.4em; margin-bottom: 5px; }
+.MediaPlayerAreaWatchTogether p { font-size: 0.85em; color: var(--card-subtext-color); margin-bottom:10px; }
+.MediaPlayerAreaWatchTogether .MediaPlayerComponent {flex-grow:1;} /* Make player fill space */
+
+.ChatArea { width: 100%; flex: 1; min-height:0; background-color: var(--card-bg-color); padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; flex-direction: column; max-height: 40vh; /* Limit height on column layout */}
+.ChatArea h4 { margin-top: 0; color: var(--text-color); font-size: 1.1em; margin-bottom:10px; border-bottom: 1px solid var(--input-border-color); padding-bottom: 8px;}
+.ChatMessages { flex-grow: 1; overflow-y: auto; border: 1px solid var(--input-border-color); padding: 8px; margin-bottom: 10px; border-radius: 4px; background-color: var(--bg-color); }
+.chat-system { font-style: italic; color: var(--card-subtext-color); font-size: 0.85em; margin-bottom: 4px; }
+.chat-message { margin-bottom: 4px; word-wrap: break-word; font-size: 0.9em; }
+.chat-message strong { color: var(--link-color); margin-right: 5px; }
+
+.ChatInputForm { display: flex; gap: 8px; }
+.ChatInputForm input { flex-grow: 1; padding: 8px; border: 1px solid var(--input-border-color); border-radius: 4px; background-color: var(--bg-color); color: var(--text-color); font-size:0.9em; }
+.ChatInputForm button { padding: 8px 12px; background-color: var(--button-bg-color); color: var(--button-text-color); border: none; border-radius: 4px; cursor: pointer; }
+.ChatInputForm button:hover { opacity: 0.9; }
+.ChatInputForm button:disabled { background-color: #ccc; }
+
+@media (min-width: 992px) { .WatchTogetherPage { flex-direction: row; } .ChatArea { width: 320px; max-width:30%; max-height:none; } }

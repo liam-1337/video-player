@@ -1,0 +1,28 @@
+.ContinueWatchingSection {
+  margin-bottom: 25px;
+  padding: 20px;
+  background-color: var(--upload-area-bg); /* Use a themed background */
+  border: 1px solid var(--upload-area-border);
+  border-radius: 8px;
+}
+.ContinueWatchingSection h3 {
+  color: var(--text-color);
+  margin-top: 0;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--card-border-color);
+  font-size: 1.3em;
+}
+.ContinueWatchingGrid {
+  display: flex;
+  overflow-x: auto;
+  padding-bottom: 15px;
+  gap: 15px;
+}
+.ContinueWatchingGrid .MediaItemCard {
+  flex: 0 0 auto; /* Prevent shrinking, allow natural width based on content or fixed width */
+  width: 210px; /* Slightly smaller cards for horizontal list */
+  min-height: 180px; /* Adjust height if needed */
+}
+.CW-Status { color: var(--text-color); font-style: italic; font-size: 0.9em; }
+.CW-Error { color: var(--status-error-color); }
