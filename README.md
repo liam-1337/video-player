@@ -1,7 +1,5 @@
-# video-player
-## 8. Windows Deployment Guide
-
-This section provides instructions for deploying and running the Media Hub application on a Windows operating system.
+#MSS
+   ##media-systeam-soloution
 
 ### Prerequisites
 
