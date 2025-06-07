@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getContinueWatchingList } from '../../services/mediaService';
+import { getContinueWatchingList } from '../../services/mediaService'; // Corrected path
 import MediaItemCard from '../MediaItemCard';
 import './ContinueWatchingSection.css';
 import { useAuth } from '../../contexts/AuthContext';
 
-const ContinueWatchingSection = ({ onPlayMedia, refreshKey }) => { // Added refreshKey prop
+const ContinueWatchingSection = ({ onPlayMedia, refreshKey }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -25,7 +25,7 @@ const ContinueWatchingSection = ({ onPlayMedia, refreshKey }) => { // Added refr
 
   useEffect(() => {
     fetchItems();
-  }, [fetchItems, refreshKey]); // Re-fetch if auth state or refreshKey changes
+  }, [fetchItems, refreshKey]);
 
   if (!isAuthenticated || (items.length === 0 && !loading && !error)) {
     return null;

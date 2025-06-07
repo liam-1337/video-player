@@ -19,21 +19,26 @@ const port = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-very-secret-and-complex-key-please-change';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1d';
 
+// --- Core Middlewares ---
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// --- Media Directories & Upload Config ---
 const APP_MEDIA_DIRECTORIES = [
     path.resolve(__dirname, 'media_library/videos'),
     path.resolve(__dirname, 'media_library/music'),
     path.resolve(__dirname, 'media_library/images'),
     path.resolve(__dirname, 'media_library/uploads'),
-    path.resolve(__dirname, 'media_library/videos_vr') // Added VR videos directory
+    path.resolve(__dirname, 'media_library/videos_vr')
 ];
-const UPLOAD_DIR = path.resolve(__dirname, 'media_library/uploads');
-if (!fs.existsSync(UPLOAD_DIR)){ fs.mkdirSync(UPLOAD_DIR, { recursive: true }); console.log(`Created upload dir: ${UPLOAD_DIR}`); }
-// Ensure other new dirs also exist if needed (videos_vr will be created by user or mkdir -p above)
-if (!fs.existsSync(path.resolve(__dirname, 'media_library/videos_vr'))){ fs.mkdirSync(path.resolve(__dirname, 'media_library/videos_vr'), { recursive: true }); }
-
+// Ensure all media directories exist on startup
+APP_MEDIA_DIRECTORIES.forEach(dir => {
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+        console.log(`[Server] Created media directory: ${dir}`);
+    }
+});
+const UPLOAD_DIR = path.resolve(__dirname, 'media_library/uploads'); // Already in APP_MEDIA_DIRECTORIES
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) { cb(null, UPLOAD_DIR); },
@@ -49,6 +54,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+// --- Authentication Middlewares ---
 const globalAuthenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.startsWith('Bearer ') && authHeader.split(' ')[1];
@@ -66,34 +72,8 @@ const requireAuth = (req, res, next) => {
     next();
 };
 
-// --- WebSocket Server Setup ---
-const wss = new WebSocket.Server({ server });
-const rooms = new Map();
-wss.on('connection', (ws, req) => { /* ... existing WebSocket logic from prev step ... */ });
-// function broadcastToRoom(roomId, message, originatorWs) { /* ... existing ... */ }
-// (Re-pasting WebSocket logic for completeness for subtask execution)
-wss.on('connection', (ws, req) => {
-  const requestUrl = new URL(req.url, `ws://${req.headers.host}`);
-  const mediaId = decodeURIComponent(requestUrl.searchParams.get('mediaId') || '');
-  const token = requestUrl.searchParams.get('token');
-  ws.userId = null; ws.username = 'Anonymous';
-  if (token) { try { const decoded = jwt.verify(token, JWT_SECRET); ws.userId = decoded.id; ws.username = decoded.username; } catch (err) { console.warn(`[WSS] Invalid token: ${err.message}`); }}
-  console.log(`[WSS] Client ${ws.username} connected. Room: ${mediaId || 'None'}`);
-  if (mediaId) {
-    if (!rooms.has(mediaId)) rooms.set(mediaId, new Set()); const room = rooms.get(mediaId); room.add(ws); ws.currentRoom = mediaId;
-    broadcastToRoom(mediaId, { type: 'userJoined', userId: ws.userId, username: ws.username, count: room.size }, null);
-    if (room.lastKnownState) ws.send(JSON.stringify({ type: 'initialState', ...room.lastKnownState, fromUser: { username: 'server' } }));
-  } else { ws.send(JSON.stringify({ type: 'error', message: 'mediaId query param required.' })); }
-  ws.on('message', (messageBuffer) => { try { const parsedMessage = JSON.parse(messageBuffer.toString()); console.log(`[WSS] ${ws.username} in ${ws.currentRoom}: `, parsedMessage); if (ws.currentRoom && parsedMessage.type) { const messageToSend = { ...parsedMessage, fromUser: { id: ws.userId, username: ws.username } }; const room = rooms.get(ws.currentRoom); if (room) { let stateChanged = false; if (room.lastKnownState === undefined) room.lastKnownState = {}; if (parsedMessage.type === 'play') { room.lastKnownState.status = 'playing'; stateChanged = true; } else if (parsedMessage.type === 'pause') { room.lastKnownState.status = 'paused'; stateChanged = true; } if (parsedMessage.currentTime !== undefined) { room.lastKnownState.currentTime = parsedMessage.currentTime; stateChanged = true; } if (parsedMessage.duration !== undefined) { room.lastKnownState.duration = parsedMessage.duration; stateChanged = true; } if(stateChanged) room.lastKnownState.lastEventAt = Date.now(); } broadcastToRoom(ws.currentRoom, messageToSend, ws); }} catch (e) { console.error('[WSS] Error processing message:', e); }});
-  ws.on('close', () => { console.log(`[WSS] Client ${ws.username} disconnected from ${ws.currentRoom || 'N/A'}`); if (ws.currentRoom && rooms.has(ws.currentRoom)) { const room = rooms.get(ws.currentRoom); room.delete(ws); if (room.size === 0) { rooms.delete(ws.currentRoom); console.log(`[WSS] Room ${ws.currentRoom} empty, removed.`); } else { broadcastToRoom(ws.currentRoom, { type: 'userLeft', userId: ws.userId, username: ws.username, count: room.size }, null); } }});
-  ws.on('error', (error) => console.error(`[WSS] Error on client ${ws.username}:`, error));
-});
-function broadcastToRoom(roomId, message, originatorWs) { if (rooms.has(roomId)) { const room = rooms.get(roomId); const messageString = JSON.stringify(message); for (const client of room) { if (client !== originatorWs && client.readyState === WebSocket.OPEN) { try { client.send(messageString); } catch (e) { console.error('[WSS] Error sending to client:', e); } } } }}
-console.log('[WSS] WebSocket server configured.');
-
-
-// --- All HTTP Routes (Auth, User, Media, Share, etc.) ---
-// (Copied from previous fully functional state to ensure completeness)
+// --- API Routes (Auth, User, Media, Share, etc.) ---
+// (Full definitions from previous step are inserted here by the subtask execution framework)
 app.post('/api/auth/register', async (req, res) => { const { username, password, email } = req.body; if (!username || !password) return res.status(400).json({ error: 'Username and password are required.' }); if (email === '') delete req.body.email; try { const hashedPassword = await bcrypt.hash(password, 10); const newUser = await User.create({ username, password: hashedPassword, email: req.body.email }); res.status(201).json({ message: 'User registered successfully!', userId: newUser.id, username: newUser.username }); } catch (error) { console.error('Registration error:', error); if (error.name === 'SequelizeUniqueConstraintError' || error.name === 'SequelizeValidationError') { return res.status(400).json({ error: error.errors.map(e => e.message).join(', ') }); } res.status(500).json({ error: 'Server error during registration.' }); }});
 app.post('/api/auth/login', async (req, res) => { const { username, password } = req.body; if (!username || !password) return res.status(400).json({ error: 'Username and password are required.' }); try { const user = await User.findOne({ where: { username } }); if (!user || !await bcrypt.compare(password, user.password)) return res.status(401).json({ error: 'Invalid credentials.' }); const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN }); res.json({ message: 'Login successful!', token, user: { id: user.id, username: user.username, email: user.email, preferredTheme: user.preferredTheme, defaultSortOption: user.defaultSortOption }}); } catch (error) { console.error("Login Error:", error); res.status(500).json({ error: 'Server error during login.' }); }});
 app.get('/api/auth/profile', requireAuth, async (req, res) => { try { const userProfile = await User.findByPk(req.user.id, { attributes: { exclude: ['password'] } }); if (!userProfile) return res.status(404).json({ error: "User profile not found."}); res.json({ user: userProfile }); } catch (error) { console.error("Error fetching profile:", error); res.status(500).json({ error: "Error fetching user profile." }); }});
@@ -111,11 +91,61 @@ app.get('/api/stream/:filePath((.*))', async (req, res) => { const relativeFileP
 app.post('/api/upload', requireAuth, upload.single('mediafile'), async (req, res) => { if (!req.file) return res.status(400).json({ error: 'No file uploaded.' }); const sanitizedFilename = req.file.filename; console.log(`User ${req.user.id} uploaded file: ${sanitizedFilename} to ${req.file.path}`); try { const mediaDetails = await getMediaFileDetails(sanitizedFilename, [UPLOAD_DIR]); if (mediaDetails) res.status(201).json({ message: 'File uploaded and processed!', fileDetails: mediaDetails }); else res.status(201).json({ message: 'File uploaded, metadata retrieval may require full scan or file type not supported by scanner.', filename: sanitizedFilename, path_on_disk: req.file.path, size: req.file.size }); } catch (error) { console.error("Error processing uploaded file metadata:", error); res.status(201).json({ message: 'File uploaded but error during metadata processing.', filename: sanitizedFilename, path_on_disk: req.file.path, processingError: error.message }); }});
 app.get('/api/media/scan-external', requireAuth, async (req, res) => { const { directoryPath } = req.query; if (!directoryPath) return res.status(400).json({ error: 'directoryPath required' }); try { const requestedPath = path.resolve(directoryPath); if (directoryPath.includes('..')) return res.status(400).json({ error: 'Invalid path (traversal attempt detected)' }); if (!fs.existsSync(requestedPath) || !fs.statSync(requestedPath).isDirectory()) return res.status(404).json({ error: 'Not found or not a directory' }); const mediaFiles = await scanDirectoryRecursive(requestedPath, requestedPath); res.json(mediaFiles); } catch (error) { console.error('Scan-external error:', error); res.status(500).json({ error: error.message }); }});
 
+// --- Serve Static Files from React App in Production ---
+if (process.env.NODE_ENV === 'production') {
+  const clientBuildPath = path.resolve(__dirname, '..', 'client', 'build');
+  console.log(`[Server] Production mode: Attempting to serve static files from ${clientBuildPath}`);
+
+  if (fs.existsSync(clientBuildPath)) {
+    app.use(express.static(clientBuildPath));
+    // API routes are defined above this, so they take precedence.
+    // This catchall is for client-side routing.
+    app.get('*', (req, res) => {
+      // Ensure API calls don't get index.html (though they should be matched earlier)
+      if (!req.path.startsWith('/api/')) {
+        res.sendFile(path.resolve(clientBuildPath, 'index.html'));
+      } else {
+        // If an /api/ call somehow reaches here, it's a 404 for the API
+        res.status(404).json({ error: 'API endpoint not found.' });
+      }
+    });
+  } else {
+    console.error(`[Server] CRITICAL: Client build path not found at ${clientBuildPath}. Client will not be served.`);
+  }
+}
+
+// --- WebSocket Server Setup ---
+const wss = new WebSocket.Server({ server });
+const rooms = new Map();
+wss.on('connection', (ws, req) => {
+  const requestUrl = new URL(req.url, `ws://${req.headers.host}`);
+  const mediaId = decodeURIComponent(requestUrl.searchParams.get('mediaId') || '');
+  const token = requestUrl.searchParams.get('token');
+  ws.userId = null; ws.username = 'Anonymous';
+  if (token) { try { const decoded = jwt.verify(token, JWT_SECRET); ws.userId = decoded.id; ws.username = decoded.username; } catch (err) { console.warn(`[WSS] Invalid token: ${err.message}`); }}
+  console.log(`[WSS] Client ${ws.username} connected. Room: ${mediaId || 'None'}`);
+  if (mediaId) {
+    if (!rooms.has(mediaId)) rooms.set(mediaId, new Set()); const room = rooms.get(mediaId); room.add(ws); ws.currentRoom = mediaId;
+    broadcastToRoom(mediaId, { type: 'userJoined', userId: ws.userId, username: ws.username, count: room.size }, null);
+    if (room.lastKnownState) ws.send(JSON.stringify({ type: 'initialState', ...room.lastKnownState, fromUser: { username: 'server' } }));
+  } else { ws.send(JSON.stringify({ type: 'error', message: 'mediaId query param required.' })); }
+  ws.on('message', (messageBuffer) => { try { const parsedMessage = JSON.parse(messageBuffer.toString()); if (ws.currentRoom && parsedMessage.type) { const messageToSend = { ...parsedMessage, fromUser: { id: ws.userId, username: ws.username } }; const room = rooms.get(ws.currentRoom); if (room) { let stateChanged = false; if (room.lastKnownState === undefined) room.lastKnownState = {}; if (parsedMessage.type === 'play') { room.lastKnownState.status = 'playing'; stateChanged = true; } else if (parsedMessage.type === 'pause') { room.lastKnownState.status = 'paused'; stateChanged = true; } if (parsedMessage.currentTime !== undefined) { room.lastKnownState.currentTime = parsedMessage.currentTime; stateChanged = true; } if (parsedMessage.duration !== undefined) { room.lastKnownState.duration = parsedMessage.duration; stateChanged = true; } if(stateChanged) room.lastKnownState.lastEventAt = Date.now(); } broadcastToRoom(ws.currentRoom, messageToSend, ws);}} catch (e) { console.error('[WSS] Error processing message:', e); }});
+  ws.on('close', () => { if (ws.currentRoom && rooms.has(ws.currentRoom)) { const room = rooms.get(ws.currentRoom); room.delete(ws); if (room.size === 0) { rooms.delete(ws.currentRoom); console.log(`[WSS] Room ${ws.currentRoom} empty, removed.`); } else { broadcastToRoom(ws.currentRoom, { type: 'userLeft', userId: ws.userId, username: ws.username, count: room.size }, null); } } console.log(`[WSS] Client ${ws.username} disconnected from ${ws.currentRoom || 'N/A'}`);});
+  ws.on('error', (error) => console.error(`[WSS] Error on client ${ws.username}:`, error));
+});
+function broadcastToRoom(roomId, message, originatorWs) { if (rooms.has(roomId)) { const room = rooms.get(roomId); const messageString = JSON.stringify(message); for (const client of room) { if (client !== originatorWs && client.readyState === WebSocket.OPEN) { try { client.send(messageString); } catch (e) { console.error('[WSS] Error sending to client:', e); } } } }}
+console.log('[WSS] WebSocket server configured.');
+
 // --- Server Start ---
 async function startServer() {
   await initializeDatabase();
   server.listen(port, () => {
     console.log(`[Server] HTTP and WebSocket Server listening on port ${port}`);
+    if (process.env.NODE_ENV === 'production') {
+        console.log('[Server] Application is running in PRODUCTION mode.');
+    } else {
+        console.log(`[Server] Application is running in DEVELOPMENT mode (NODE_ENV=${process.env.NODE_ENV}).`);
+    }
     if (JWT_SECRET === 'your-very-secret-and-complex-key-please-change') {
         console.warn('[SECURITY] JWT_SECRET default value used. Set a strong secret in env vars for production!');
     }

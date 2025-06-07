@@ -13,7 +13,7 @@ import ContinueWatchingSection from './components/sections/ContinueWatchingSecti
 import SharedWithMePage from './pages/SharedWithMePage';
 import WatchTogetherPage from './pages/WatchTogetherPage';
 
-import 'plyr-react/dist/plyr.css';
+import 'plyr/dist/plyr.css';
 import './App.css';
 
 const getInitialTheme = (user) => { if (user && user.preferredTheme) return user.preferredTheme; if (typeof window !== 'undefined' && window.localStorage) { const t = localStorage.getItem('mediaHubTheme'); if (t) return t; if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark'; } return 'light'; };

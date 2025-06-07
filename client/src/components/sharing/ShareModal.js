@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { shareMediaItem } from '../../services/mediaService';
+import { shareMediaItem } from '../../services/mediaService'; // Corrected path
 import './ShareModal.css';
 
 const ShareModal = ({ mediaItem, onClose, onShareSuccess }) => {

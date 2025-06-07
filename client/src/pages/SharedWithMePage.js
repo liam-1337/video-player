@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { getSharedWithMeList } from '../../services/mediaService';
+import { getSharedWithMeList } from '../services/mediaService'; // Corrected path
 import MediaGrid from '../components/MediaGrid';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';

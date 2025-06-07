@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useCallback, useImperativeHandle } from 'react';
 import Plyr from 'plyr-react';
-import 'plyr-react/dist/plyr.css';
+import 'plyr/dist/plyr.css';
 import { saveMediaProgress as serviceSaveMediaProgress } from '../services/mediaService';
 import { useAuth } from '../contexts/AuthContext';
 

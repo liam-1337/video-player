@@ -21,14 +21,17 @@ const MediaItemCard = ({ mediaItem, onPlay, userProgress, sharedBy }) => {
     case 'image': IconComponent = ImageIcon; break;
     default: IconComponent = UnknownIcon; break;
   }
-  const progressPercent = userProgress && userProgress.totalDuration ? (userProgress.progress / userProgress.totalDuration) * 100 : 0;
+  const progressPercent = userProgress && userProgress.totalDuration && userProgress.totalDuration > 0
+    ? (userProgress.progress / userProgress.totalDuration) * 100
+    : 0;
 
   const handleShareClick = (e) => { e.stopPropagation(); setShowShareModal(true); };
-  const watchTogetherUrl = `/watch/${encodeURIComponent(id)}/together`;
+  const watchTogetherUrl = `/watch/${encodeURIComponent(id)}/together`; // Use id from mediaItem
 
   return (
     <>
-      <div className="MediaItemCard" onClick={() => onPlay(mediaItem)} data-testid={}>
+      {/* Corrected data-testid syntax */}
+      <div className="MediaItemCard" onClick={() => onPlay(mediaItem)} data-testid={`media-item-${id}`}>
         <div className="MediaItemCard-Icon"><IconComponent /></div>
         <div className="MediaItemCard-Details">
           <h3 title={title}>{title} {isVR && <span className="VRBadge" title="360° VR Video">(VR)</span>}</h3>
