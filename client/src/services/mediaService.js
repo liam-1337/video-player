@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = '/api';
+const API_URL = 'http://localhost:3001/api'; // Changed for Electron
 const authAxios = axios.create({ baseURL: API_URL });
 
 authAxios.interceptors.request.use(
@@ -99,7 +99,8 @@ export const uploadMediaFile = async (file, onUploadProgress) => {
 // --- External API Search Functions ---
 export const searchE621 = async (tags) => {
   try {
-    const response = await authAxios.get('/api/e621/search', { params: { tags } });
+    // Corrected to be relative to baseURL
+    const response = await authAxios.get('/e621/search', { params: { tags } });
     return response.data;
   } catch (error) {
     console.error('Error searching e621:', error.response ? error.response.data : error.message);
@@ -109,7 +110,8 @@ export const searchE621 = async (tags) => {
 
 export const searchRule34 = async (tags) => {
   try {
-    const response = await authAxios.get('/api/rule34/search', { params: { tags } });
+    // Corrected to be relative to baseURL
+    const response = await authAxios.get('/rule34/search', { params: { tags } });
     return response.data;
   } catch (error) {
     console.error('Error searching Rule34:', error.response ? error.response.data : error.message);
