@@ -1,10 +1,75 @@
-/* General Body Styles */
+/* --- Theme Variables --- */
+:root {
+  /* Light Theme (Default) */
+  --bg-color: #f4f7f6;
+  --text-color: #333;
+  --header-bg-color: #343a40;
+  --header-text-color: white;
+  --footer-bg-color: #343a40;
+  --footer-text-color: #f8f9fa;
+  --card-bg-color: #fff;
+  --card-border-color: #e0e0e0;
+  --card-text-color: #333;
+  --card-subtext-color: #555;
+  --button-bg-color: #007bff;
+  --button-text-color: white;
+  --input-bg-color: #495057; /* For search/sort in dark header */
+  --input-text-color: white;
+  --input-placeholder-color: #adb5bd;
+  --input-border-color: #555;
+  --player-overlay-bg: rgba(0, 0, 0, 0.7);
+  --player-container-bg: #fff;
+  --player-container-text-color: #333;
+  --modal-close-btn-color: #6c757d;
+  --upload-area-bg: #f9f9f9;
+  --upload-area-border: #ccc;
+  --progressbar-bg: #e0e0e0;
+  --progressbar-fill: #4caf50;
+  --link-color: #007bff;
+  --status-loading-color: #007bff;
+  --status-error-color: #dc3545;
+  --status-refreshing-color: #17a2b8;
+}
+
+body.theme-dark {
+  --bg-color: #1a1a1a;
+  --text-color: #e0e0e0;
+  --header-bg-color: #212529;
+  --header-text-color: #f8f9fa;
+  --footer-bg-color: #212529;
+  --footer-text-color: #f0f0f0;
+  --card-bg-color: #2c2c2c;
+  --card-border-color: #444;
+  --card-text-color: #e0e0e0;
+  --card-subtext-color: #bbb;
+  --button-bg-color: #0069d9;
+  --button-text-color: white;
+  --input-bg-color: #343a40;
+  --input-text-color: #f0f0f0;
+  --input-placeholder-color: #999;
+  --input-border-color: #666;
+  --player-overlay-bg: rgba(0, 0, 0, 0.8);
+  --player-container-bg: #2c2c2c;
+  --player-container-text-color: #e0e0e0;
+  --modal-close-btn-color: #aaa;
+  --upload-area-bg: #252525;
+  --upload-area-border: #444;
+  --progressbar-bg: #555;
+  --progressbar-fill: #5cb85c;
+  --link-color: #00aeff;
+  --status-loading-color: #00aeff;
+  --status-error-color: #ff6b6b;
+  --status-refreshing-color: #20c997;
+}
+
+/* --- General Body Styles --- */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
-  background-color: #f4f7f6; /* Light grayish background */
-  color: #333;
+  background-color: var(--bg-color);
+  color: var(--text-color);
   line-height: 1.6;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 /* App Container */
@@ -16,130 +81,231 @@ body {
 
 /* Header */
 .App-Header {
-  background-color: #343a40; /* Dark gray */
-  color: white;
+  background-color: var(--header-bg-color);
+  color: var(--header-text-color);
   padding: 15px 30px;
-  text-align: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: sticky; /* Make header sticky */
+  position: sticky;
   top: 0;
-  z-index: 100; /* Keep header above content when scrolling */
+  z-index: 100;
+}
+
+.App-Header-TopRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
 .App-Header h1 {
   margin: 0;
   font-size: 1.8em;
-  margin-bottom: 10px; /* Space for search bar */
 }
 
-/* Search Container and Input */
+.ThemeToggleBtn {
+  padding: 8px 12px;
+  background-color: var(--button-bg-color);
+  color: var(--button-text-color);
+  border: 1px solid var(--input-border-color); /* Added border for better visibility */
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+.ThemeToggleBtn:hover {
+  opacity: 0.9;
+}
+
+
+/* Controls Container in Header */
+.App-Controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
 .App-SearchContainer {
-  margin-top: 10px;
-  margin-bottom: 5px; /* Adjusted margin */
+  flex-grow: 1;
+  min-width: 250px;
 }
 
 .App-SearchInput {
+  width: 100%;
+  box-sizing: border-box;
   padding: 10px 15px;
-  width: 60%;
-  max-width: 500px;
-  border: 1px solid #555;
-  border-radius: 20px; /* Rounded corners */
+  border: 1px solid var(--input-border-color);
+  border-radius: 20px;
   font-size: 1em;
-  background-color: #495057; /* Darker input background */
-  color: white;
-  outline: none; /* Remove default outline */
-  transition: all 0.3s ease;
+  background-color: var(--input-bg-color);
+  color: var(--input-text-color);
+  outline: none;
 }
-
 .App-SearchInput::placeholder {
-  color: #adb5bd; /* Light placeholder text */
+  color: var(--input-placeholder-color);
+}
+.App-SearchInput:focus {
+  border-color: var(--button-bg-color);
 }
 
-.App-SearchInput:focus {
-  border-color: #007bff; /* Blue border on focus */
-  background-color: #5a6268;
+.App-SortContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 200px;
+}
+.App-SortContainer label {
+  font-size: 0.9em;
+  color: var(--header-text-color);
+  opacity: 0.8;
+}
+.App-SortSelect {
+  padding: 8px 12px;
+  border: 1px solid var(--input-border-color);
+  border-radius: 4px;
+  background-color: var(--input-bg-color);
+  color: var(--input-text-color);
+  font-size: 0.9em;
+  outline: none;
+}
+.App-SortSelect:focus {
+  border-color: var(--button-bg-color);
 }
 
 
 /* Main Content Area */
 .App-MainContent {
-  flex-grow: 1; /* Allows main content to fill available space */
-  padding: 20px; /* Re-add padding here, MediaGrid itself should not have top padding if header is sticky */
-                 /* Or ensure MediaGrid's padding accounts for header height if header is not sticky and content flows under */
+  flex-grow: 1;
+  padding: 20px;
 }
 
-/* Status Messages (Loading/Error) */
-.App-Status {
-  text-align: center;
-  font-size: 1.2em;
-  padding: 40px 20px;
-}
-.App-Loading {
-  color: #007bff; /* Blue for loading */
-}
-.App-Error {
-  color: #dc3545; /* Red for error */
-}
+/* Status Messages */
+.App-Status { text-align: center; font-size: 1.2em; padding: 40px 20px; }
+.App-Loading { color: var(--status-loading-color); }
+.App-Error { color: var(--status-error-color); }
+.App-Refreshing { color: var(--status-refreshing-color); font-size: 0.9em; text-align: center; padding: 5px 0; }
+.App-Error-Inline { color: var(--status-error-color); font-size: 0.9em; text-align: center; padding: 5px 0; }
+
 
 /* Media Player Overlay & Container */
 .MediaPlayerOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent backdrop */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000; /* Ensure it's on top */
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-color: var(--player-overlay-bg);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
 }
-
 .MediaPlayerContainer {
-  background-color: white;
-  padding: 25px;
-  border-radius: 8px;
+  background-color: var(--player-container-bg);
+  color: var(--player-container-text-color);
+  padding: 25px; border-radius: 8px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  width: 80%;
-  max-width: 700px; /* Max width for the player */
-  position: relative;
+  width: 80%; max-width: 700px; position: relative;
 }
-
-.MediaPlayerContainer h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  color: #343a40;
-}
-
+.MediaPlayerContainer h3 { margin-top: 0; margin-bottom: 15px; }
 .MediaPlayer-CloseButton {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  background: transparent;
-  border: none;
-  font-size: 1.8em;
-  color: #6c757d; /* Gray */
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
+  position: absolute; top: 10px; right: 15px;
+  background: transparent; border: none;
+  font-size: 1.8em; color: var(--modal-close-btn-color);
+  cursor: pointer; padding: 0; line-height: 1;
 }
-.MediaPlayer-CloseButton:hover {
-  color: #343a40; /* Darker gray on hover */
-}
-
-.MediaPlayerContainer video,
-.MediaPlayerContainer audio {
-  max-width: 100%;
-  border-radius: 4px;
-  display: block; /* Ensure it takes up width */
-}
+.MediaPlayer-CloseButton:hover { opacity: 0.7; }
+.MediaPlayerContainer video, .MediaPlayerContainer audio { max-width: 100%; border-radius: 4px; display: block; }
 
 /* Footer */
 .App-Footer {
-  background-color: #343a40; /* Dark gray */
-  color: #f8f9fa; /* Light text for footer */
+  background-color: var(--footer-bg-color);
+  color: var(--footer-text-color);
   text-align: center;
   padding: 15px 30px;
   font-size: 0.9em;
-  margin-top: auto; /* Push footer to bottom if content is short */
+  margin-top: auto;
 }
+
+/* Component-specific theming using variables */
+.MediaUpload {
+  border: 1px dashed var(--upload-area-border);
+  background-color: var(--upload-area-bg);
+}
+.MediaUpload h4 { color: var(--text-color); } /* Use general text color for headings inside themed components */
+.MediaUpload-ProgressBarContainer { background-color: var(--progressbar-bg); }
+.MediaUpload-ProgressBar { background-color: var(--progressbar-fill); }
+.MediaUpload input[type="file"] { border-color: var(--input-border-color); background-color: var(--bg-color); color: var(--text-color); }
+
+
+.MediaItemCard {
+  background-color: var(--card-bg-color);
+  border: 1px solid var(--card-border-color);
+  color: var(--card-text-color);
+}
+.MediaItemCard-Details h3 { color: var(--card-text-color); }
+.MediaItemCard-Type { color: var(--card-subtext-color); }
+.MediaItemCard-Artist, .MediaItemCard-Album, .MediaItemCard-Duration { color: var(--card-subtext-color); }
+.MediaItemCard-Icon { color: var(--card-subtext-color); }
+
+
+/* Plyr Theme Overrides */
+body.theme-dark .plyr__control--overlaid,
+body.theme-dark .plyr__control > svg {
+  background: var(--card-bg-color, #2c2c2c); /* Darker play button background */
+  color: var(--text-color, #e0e0e0);
+  fill: var(--text-color, #e0e0e0);
+}
+body.theme-dark .plyr__control:hover {
+  background: var(--button-bg-color, #0069d9) !important;
+}
+body.theme-dark .plyr__progress__buffer { background: rgba(255,255,255,0.1); }
+body.theme-dark .plyr__volume__track { background: rgba(255,255,255,0.1); }
+body.theme-dark .plyr__tooltip { background: var(--header-bg-color); color: var(--header-text-color); }
+body.theme-dark .plyr__menu__button.plyr__control--active,
+body.theme-dark .plyr__menu__item:hover { background: rgba(255,255,255,0.1); }
+
+
+body.theme-light .plyr__control--overlaid,
+body.theme-light .plyr__control > svg {
+  /* Default Plyr colors are generally fine for light theme but can be overridden if needed */
+   background: rgba(255,255,255,0.9);
+   color: #4a5464;
+   fill: #4a5464;
+}
+body.theme-light .plyr__control:hover {
+  background: var(--button-bg-color, #007bff) !important;
+  color: white !important;
+}
+body.theme-light .plyr__tooltip { background: var(--header-bg-color); color: var(--header-text-color); }
+
+/* General Plyr styling to ensure text is readable */
+.plyr__controls .plyr__control, .plyr__time, .plyr__menu__button, .plyr__menu__item {
+    color: var(--text-color); /* This might be too broad, specific overrides above are better */
+}
+.plyr--video .plyr__controls {
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0)); /* Ensure some contrast for controls */
+    color: var(--header-text-color); /* Default to light text on dark gradient */
+}
+body.theme-dark .plyr--video .plyr__controls { color: var(--header-text-color); }
+body.theme-light .plyr--video .plyr__controls { color: #fff; } /* Default Plyr is light text on dark gradient */
+
+.plyr__menu__button, .plyr__menu__item {
+    color: var(--card-text-color) !important; /* For menu items when opened */
+}
+body.theme-dark .plyr__menu__item:hover { background: var(--input-bg-color) !important; }
+body.theme-light .plyr__menu__item:hover { background: var(--progressbar-bg) !important; }
+
+
+
+.App-Logo { text-decoration: none; color: inherit; }
+.App-Header-UserControls { display: flex; align-items: center; gap: 10px; }
+.UserInfo { font-size: 0.9em; margin-right: 5px; }
+.AuthBtn { padding: 6px 10px; background-color: var(--button-bg-color); color: var(--button-text-color); border: none; border-radius: 4px; cursor: pointer; font-size: 0.85em; text-decoration: none; display: inline-block; text-align: center; }
+.AuthBtn:hover { opacity: 0.85; }
+.ThemeToggleBtn { background: transparent; border: 1px solid var(--input-border-color); color: var(--header-text-color); width: 36px; height: 36px; border-radius: 50%; font-size: 1.2em; display: flex; align-items: center; justify-content: center; }
+.ThemeToggleBtn:hover { border-color: var(--button-bg-color); }
+/* Ensure AuthForm.css variable is defined in :root or body.theme-dark if used */
+:root { --button-focus-shadow: rgba(0,123,255,.25); }
+body.theme-dark { --button-focus-shadow: rgba(0,174,255,.25); }
+
+.PageContent { padding: 20px; } /* Basic padding for pages like SharedWithMePage */
+.PageContent h2 { margin-top: 0; color: var(--text-color); margin-bottom: 20px; }
+.VRPlayerOverlay { background-color: #000; /* VR usually best on black */ }

@@ -1,0 +1,77 @@
+.MediaUpload {
+  padding: 15px;
+  margin: 20px 0; /* Increased top/bottom margin */
+  border: 1px dashed #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  text-align: center;
+}
+
+.MediaUpload h4 {
+  margin-top: 0;
+  margin-bottom: 15px; /* Increased margin */
+  color: #333;
+}
+
+.MediaUpload input[type="file"] {
+  margin-bottom: 15px; /* Increased margin */
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 5px; /* Added padding for better appearance */
+  border: 1px solid #ddd; /* Added border */
+  border-radius: 4px;
+  max-width: 250px; /* Limit width */
+}
+
+.MediaUpload button {
+  padding: 10px 20px; /* Increased padding */
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 1em; /* Ensure button text is readable */
+}
+
+.MediaUpload button:hover {
+  background-color: #0056b3;
+}
+
+.MediaUpload button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.MediaUpload-Error {
+  color: #dc3545; /* Bootstrap danger red */
+  font-size: 0.9em;
+  margin-top: 10px;
+}
+
+.MediaUpload-Message {
+  color: #28a745; /* Bootstrap success green */
+  font-size: 0.9em;
+  margin-top: 10px;
+}
+
+.MediaUpload-ProgressBarContainer {
+  width: 80%;
+  max-width: 300px; /* Max width for progress bar */
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  margin: 15px auto 5px auto; /* Adjusted margin */
+  overflow: hidden;
+  height: 22px; /* Slightly taller */
+}
+
+.MediaUpload-ProgressBar {
+  height: 100%;
+  background-color: #28a745; /* Bootstrap success green for progress */
+  color: white;
+  text-align: center;
+  line-height: 22px; /* Vertically center text */
+  transition: width 0.1s ease-in-out; /* Faster transition for progress */
+  font-size: 0.85em; /* Slightly larger text */
+}

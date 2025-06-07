@@ -1,157 +1,164 @@
 const fs = require('fs-extra');
 const path = require('path');
-// const mm = require('music-metadata'); // Changed to dynamic import
+// const mm = require('music-metadata'); // Using dynamic import below
 
-const SUPPORTED_VIDEO_EXTENSIONS = ['.mp4', '.mkv', '.avi', '.webm'];
-const SUPPORTED_AUDIO_EXTENSIONS = ['.mp3', '.wav', '.ogg', '.flac'];
+const SUPPORTED_VIDEO_EXTENSIONS = ['.mp4', '.mkv', '.avi', '.webm', '.mov'];
+const SUPPORTED_AUDIO_EXTENSIONS = ['.mp3', '.wav', '.ogg', '.flac', '.aac', '.m4a'];
 const SUPPORTED_IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif'];
 const ALL_SUPPORTED_EXTENSIONS = [
-  ...SUPPORTED_VIDEO_EXTENSIONS,
-  ...SUPPORTED_AUDIO_EXTENSIONS,
-  ...SUPPORTED_IMAGE_EXTENSIONS
+    ...SUPPORTED_VIDEO_EXTENSIONS,
+    ...SUPPORTED_AUDIO_EXTENSIONS,
+    ...SUPPORTED_IMAGE_EXTENSIONS
 ];
 
-// baseDir is the root directory that was initially scanned (e.g., /media_library/videos)
+const VR_FILENAME_TAGS = ['_vr', '_360', '_180', 'vr180', '360video', 'gear360', 'insta360'];
+
 async function scanDirectoryRecursive(currentDirPath, baseDir) {
-  try {
-    const files = await fs.readdir(currentDirPath);
-    let mediaFiles = [];
+    try {
+        const files = await fs.readdir(currentDirPath);
+        let mediaFiles = [];
 
-    for (const file of files) {
-      const filePath = path.join(currentDirPath, file);
-      const stat = await fs.stat(filePath);
+        for (const file of files) {
+            const filePath = path.join(currentDirPath, file);
+            const stat = await fs.stat(filePath);
 
-      if (stat.isDirectory()) {
-        mediaFiles.push(...await scanDirectoryRecursive(filePath, baseDir));
-      } else {
-        const ext = path.extname(file).toLowerCase();
-        if (ALL_SUPPORTED_EXTENSIONS.includes(ext)) {
-          let metadata = {};
-          const type = getTypeFromExtension(ext);
-          // Relative path from the initial baseDir
-          const relativePath = path.relative(baseDir, filePath);
+            if (stat.isDirectory()) {
+                mediaFiles.push(...await scanDirectoryRecursive(filePath, baseDir));
+            } else {
+                const ext = path.extname(file).toLowerCase();
+                if (ALL_SUPPORTED_EXTENSIONS.includes(ext)) {
+                    let metadata = {};
+                    const type = getTypeFromExtension(ext);
+                    const relativePath = path.relative(baseDir, filePath);
+                    const fileBasename = path.basename(file, ext); // Keep original case for title fallback
+                    const fileBasenameLower = fileBasename.toLowerCase();
 
+                    let isVR = false;
+                    if (type === 'video') {
+                        for (const tag of VR_FILENAME_TAGS) {
+                            if (fileBasenameLower.includes(tag)) {
+                                isVR = true;
+                                break;
+                            }
+                        }
+                    }
 
-          try {
-            if (type === 'video' || type === 'audio') {
-                            const mm = await import('music-metadata');
-              const parsedMetadata = await mm.parseFile(filePath, { duration: true });
-              metadata.duration = parsedMetadata.format.duration;
-              metadata.title = parsedMetadata.common.title || path.basename(file, ext); // Fallback title
-              metadata.artist = parsedMetadata.common.artist;
-              metadata.album = parsedMetadata.common.album;
-              metadata.year = parsedMetadata.common.year;
-              if (parsedMetadata.common.picture && parsedMetadata.common.picture.length > 0) {
-                metadata.hasCoverArt = true;
-              }
-            } else if (type === 'image') {
-              metadata.dimensions = null; // Placeholder
+                    try {
+                        if (type === 'video' || type === 'audio') {
+                            const mm = await import('music-metadata'); // Dynamic import
+                            const parsedMetadata = await mm.parseFile(filePath, { duration: true });
+                            metadata.duration = parsedMetadata.format.duration;
+                            metadata.title = parsedMetadata.common.title || fileBasename; // Use original case basename
+                            metadata.artist = parsedMetadata.common.artist;
+                            metadata.album = parsedMetadata.common.album;
+                            metadata.year = parsedMetadata.common.year;
+                            if (parsedMetadata.common.picture && parsedMetadata.common.picture.length > 0) {
+                                metadata.hasCoverArt = true;
+                            }
+                        }
+                    } catch (err) {
+                        console.warn(`Metadata parse error for ${filePath}: ${err.message}`);
+                        metadata.error = 'Failed to parse metadata';
+                        if (!metadata.title) metadata.title = fileBasename; // Fallback
+                    }
+
+                    mediaFiles.push({
+                        id: Buffer.from(relativePath).toString('base64url'),
+                        name: file, // Original filename with extension
+                        path: relativePath,
+                        full_disk_path: filePath,
+                        type: type,
+                        isVR: isVR, // Add isVR flag
+                        metadata: metadata,
+                        size: stat.size,
+                        lastModified: stat.mtime
+                    });
+                }
             }
-          } catch (err) {
-            console.warn(`Could not parse metadata for ${filePath}: ${err.message}`);
-            metadata.error = 'Failed to parse metadata';
-            if (!metadata.title) metadata.title = path.basename(file, ext); // Ensure title fallback
-          }
-
-          mediaFiles.push({
-            id: Buffer.from(relativePath).toString('base64url'), // Create a somewhat stable ID
-            name: file,
-            path: relativePath, // Path relative to the specific media_library (e.g., videos/movie1.mp4)
-            full_disk_path: filePath, // Full path on disk, for server-side access
-            type: type,
-            metadata: metadata,
-            size: stat.size,
-            lastModified: stat.mtime
-          });
         }
-      }
+        return mediaFiles;
+    } catch (error) {
+        console.error(`Error scanning directory ${currentDirPath}:`, error);
+        return [];
     }
-    return mediaFiles;
-  } catch (error) {
-    // Log error but don't let one problematic directory stop others
-    console.error(`Error scanning directory ${currentDirPath}:`, error);
-    return []; // Return empty array on error for this path
-  }
 }
 
-
-// This is the function that will be called by the API
 async function getMediaInDirectories(baseDirs) {
-  let allMedia = [];
-  for (const baseDir of baseDirs) {
-    const absoluteBaseDir = path.resolve(baseDir); // Ensure absolute path
-    if (!await fs.pathExists(absoluteBaseDir) || !(await fs.stat(absoluteBaseDir)).isDirectory()) {
-      console.warn(`Media directory not found or not a directory: ${absoluteBaseDir}`);
-      continue;
+    let allMedia = [];
+    for (const baseDir of baseDirs) {
+        const absoluteBaseDir = path.resolve(baseDir);
+         if (!await fs.pathExists(absoluteBaseDir) || !(await fs.stat(absoluteBaseDir)).isDirectory()) {
+            console.warn(`Media dir not found: ${absoluteBaseDir}`);
+            continue;
+        }
+        allMedia.push(...await scanDirectoryRecursive(absoluteBaseDir, absoluteBaseDir));
     }
-    // Pass absoluteBaseDir so relative paths are calculated correctly
-    allMedia.push(...await scanDirectoryRecursive(absoluteBaseDir, absoluteBaseDir));
-  }
-  return allMedia;
+    return allMedia;
 }
-
 
 function getTypeFromExtension(ext) {
-  if (SUPPORTED_VIDEO_EXTENSIONS.includes(ext)) return 'video';
-  if (SUPPORTED_AUDIO_EXTENSIONS.includes(ext)) return 'audio';
-  if (SUPPORTED_IMAGE_EXTENSIONS.includes(ext)) return 'image';
-  return 'unknown';
+    if (SUPPORTED_VIDEO_EXTENSIONS.includes(ext)) return 'video';
+    if (SUPPORTED_AUDIO_EXTENSIONS.includes(ext)) return 'audio';
+    if (SUPPORTED_IMAGE_EXTENSIONS.includes(ext)) return 'image';
+    return 'unknown';
 }
 
-// Function to get a single media file's details
-async function getMediaFileDetails(filePath, baseDirs) {
-  // filePath here is the relative path used as ID
-  for (const baseDir of baseDirs) {
-    const absoluteBaseDir = path.resolve(baseDir);
-    // Construct the full path by joining the base directory with the relative file path
-    const fullFilePath = path.resolve(absoluteBaseDir, filePath);
+async function getMediaFileDetails(relativeFilePath, baseDirs) {
+    for (const baseDir of baseDirs) {
+        const absoluteBaseDir = path.resolve(baseDir);
+        const fullFilePath = path.resolve(absoluteBaseDir, relativeFilePath);
 
-    // Security: Check that the resolved path is still within the intended base directory
-    if (!fullFilePath.startsWith(absoluteBaseDir)) {
-      console.warn(`Attempt to access file outside base directory: ${fullFilePath}`);
-      continue; // Skip to next baseDir or return null if no match
-    }
+        if (!fullFilePath.startsWith(absoluteBaseDir)) continue;
 
-    if (await fs.pathExists(fullFilePath) && (await fs.stat(fullFilePath)).isFile()) {
-      const ext = path.extname(fullFilePath).toLowerCase();
-      let metadata = {};
-      const type = getTypeFromExtension(ext);
-      const stat = await fs.stat(fullFilePath);
-      try {
-        if (type === 'video' || type === 'audio') {
-                    const mm = await import('music-metadata');
-          const parsedMetadata = await mm.parseFile(fullFilePath, { duration: true });
-          metadata.duration = parsedMetadata.format.duration;
-          metadata.title = parsedMetadata.common.title || path.basename(fullFilePath, ext);
-          metadata.artist = parsedMetadata.common.artist;
-          metadata.album = parsedMetadata.common.album;
-          metadata.year = parsedMetadata.common.year;
-          if (parsedMetadata.common.picture && parsedMetadata.common.picture.length > 0) {
-            metadata.hasCoverArt = true;
-          }
-        } else if (type === 'image') {
-          metadata.dimensions = null;
+        if (await fs.pathExists(fullFilePath) && (await fs.stat(fullFilePath)).isFile()) {
+            const stat = await fs.stat(fullFilePath);
+            const originalFilenameWithExt = path.basename(fullFilePath);
+            const ext = path.extname(fullFilePath).toLowerCase();
+            const type = getTypeFromExtension(ext);
+            const fileBasename = path.basename(fullFilePath, ext); // Original case
+            const fileBasenameLower = fileBasename.toLowerCase();
+            let metadata = {};
+            let isVR = false;
+
+            if (type === 'video') {
+                for (const tag of VR_FILENAME_TAGS) {
+                    if (fileBasenameLower.includes(tag)) { isVR = true; break; }
+                }
+            }
+
+            try {
+                if (type === 'video' || type === 'audio') {
+                    const mm = await import('music-metadata'); // Dynamic import
+                    const parsedMetadata = await mm.parseFile(fullFilePath, { duration: true });
+                    metadata.duration = parsedMetadata.format.duration;
+                    metadata.title = parsedMetadata.common.title || fileBasename;
+                    metadata.artist = parsedMetadata.common.artist;
+                    metadata.album = parsedMetadata.common.album;
+                    metadata.year = parsedMetadata.common.year;
+                    if (parsedMetadata.common.picture && parsedMetadata.common.picture.length > 0) {
+                        metadata.hasCoverArt = true;
+                    }
+                }
+            } catch (err) {
+                console.warn(`Metadata parse error for ${fullFilePath}: ${err.message}`);
+                metadata.error = 'Failed to parse metadata';
+                if (!metadata.title) metadata.title = fileBasename;
+            }
+
+            return {
+                id: Buffer.from(relativeFilePath).toString('base64url'),
+                name: originalFilenameWithExt,
+                path: relativeFilePath,
+                full_disk_path: fullFilePath,
+                type: type,
+                isVR: isVR,
+                metadata: metadata,
+                size: stat.size,
+                lastModified: stat.mtime
+            };
         }
-      } catch (err) {
-        console.warn(`Could not parse metadata for ${fullFilePath}: ${err.message}`);
-        metadata.error = 'Failed to parse metadata';
-        if (!metadata.title) metadata.title = path.basename(fullFilePath, ext);
-      }
-
-      return {
-        id: Buffer.from(filePath).toString('base64url'),
-        name: path.basename(fullFilePath),
-        path: filePath, // Relative path
-        full_disk_path: fullFilePath,
-        type: type,
-        metadata: metadata,
-        size: stat.size,
-        lastModified: stat.mtime
-      };
     }
-  }
-  return null; // Not found in any base directory
+    return null;
 }
 
-
-module.exports = { getMediaInDirectories, getMediaFileDetails, scanDirectoryRecursive }; // Expose scanDirectoryRecursive for the /scan endpoint
+module.exports = { getMediaInDirectories, getMediaFileDetails, scanDirectoryRecursive };

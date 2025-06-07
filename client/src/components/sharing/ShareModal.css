@@ -1,0 +1,13 @@
+.ShareModalOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--player-overlay-bg); display: flex; align-items: center; justify-content: center; z-index: 1050; }
+.ShareModalContainer { background-color: var(--card-bg-color); color: var(--text-color); padding: 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); width: 90%; max-width: 450px; }
+.ShareModalContainer h3 { margin-top: 0; margin-bottom: 20px; font-size: 1.2em; }
+.ShareModalContainer .form-group { margin-bottom: 15px; }
+.ShareModalContainer .form-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.9em; }
+.ShareModalContainer .form-group input { width: 100%; padding: 10px; border-radius: 4px; border: 1px solid var(--input-border-color); background-color: var(--bg-color); color: var(--text-color); box-sizing: border-box; }
+.share-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.share-actions .cancel-btn, .share-actions .confirm-btn { padding: 8px 15px; border-radius: 4px; border: none; cursor: pointer; font-weight: 500; }
+.share-actions .cancel-btn { background-color: var(--input-border-color); color: var(--text-color); }
+.share-actions .confirm-btn { background-color: var(--button-bg-color); color: var(--button-text-color); }
+.share-actions .confirm-btn:disabled { background-color: #ccc; color: #666; }
+.share-error { color: var(--status-error-color, #dc3545); font-size: 0.9em; margin-top: 10px; padding:8px; border-radius:4px; background-color: rgba(220,53,69,0.1); }
+.share-success { color: var(--status-refreshing-color, #28a745); font-size: 0.9em; margin-top: 10px; padding:8px; border-radius:4px; background-color: rgba(40,167,69,0.1); }

@@ -52,3 +52,60 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.MediaItemCard-ProgressContainer {
+  height: 6px; /* Thinner progress bar */
+  background-color: var(--progressbar-bg, #555); /* Darker background for contrast */
+  border-radius: 3px;
+  margin-top: auto; /* Push to bottom */
+  margin-bottom: 2px; /* Space from card edge */
+  overflow: hidden;
+}
+.MediaItemCard-ProgressBar {
+  height: 100%;
+  background-color: var(--progressbar-fill, #5cb85c);
+  border-radius: 3px;
+  transition: width 0.2s ease;
+}
+
+.MediaItemCard-ShareBtn {
+  position: absolute;
+  top: 5px; /* Adjusted position */
+  right: 5px;
+  padding: 3px 6px; /* Smaller padding */
+  font-size: 0.9em; /* Larger icon/text */
+  background-color: var(--button-bg-color);
+  color: var(--button-text-color);
+  border: none;
+  border-radius: 50%; /* Circular button */
+  cursor: pointer;
+  opacity: 0.6; /* Less obtrusive initially */
+  transition: opacity 0.2s, background-color 0.2s;
+  width: 28px; /* Fixed size */
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.MediaItemCard:hover .MediaItemCard-ShareBtn { opacity: 1; }
+.MediaItemCard-ShareBtn:hover { background-color: var(--button-bg-color); opacity:1; } /* Darken on hover */
+.MediaItemCard-SharedBy { font-size: 0.75em; color: var(--card-subtext-color); font-style: italic; margin-top: 3px; padding-left: 5px; }
+.MediaItemCard { position: relative; }
+:root { --button-bg-color-rgb: 0,123,255; } /* Define RGB version for opacity if needed elsewhere */
+body.theme-dark { --button-bg-color-rgb: 0,105,217; }
+.MediaItemCard-ActionBtn.WTBtn { /* Specific style for WT button if needed */
+  /* background-color: #ffc107; */ /* Example: different color */
+}
+.MediaItemCard-ActionBtn.ShareBtn { /* Ensure it's distinct if needed */
+}
+.VRBadge {
+  font-size: 0.75em; /* Smaller than type */
+  font-weight: bold;
+  color: var(--button-bg-color);
+  margin-left: 6px;
+  background-color: rgba(var(--button-bg-color-rgb, 0,123,255), 0.15); /* Use RGB for opacity */
+  padding: 2px 5px;
+  border-radius: 3px;
+  vertical-align: middle; /* Align with text */
+}
