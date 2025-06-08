@@ -105,3 +105,7 @@ This concludes the basic Windows deployment guide. For more advanced scenarios l
 
 A standalone desktop version of MediaHub is also available, packaged with Electron.
 For instructions on how to build, run, and use the desktop application, please see [DESKTOP_README.md](./DESKTOP_README.md).
+
+## User Guide
+
+For a comprehensive guide on using Media Hub's features, including registration, media management, playback, sharing, and more, please see our [User Guide](./USER_GUIDE.md).
