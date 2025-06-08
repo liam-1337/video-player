@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation, useNavigate as useRouterNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { getMediaList, getStreamUrl, /*getUserProfile,*/ updateUserPreferences as serviceUpdateUserPreferences } from './services/mediaService';
+import { getMediaList, getStreamUrl /*, getUserProfile */ } from './services/mediaService';
 
 import MediaGrid from './components/MediaGrid';
 import MediaUpload from './components/MediaUpload';
