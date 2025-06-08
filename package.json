@@ -1,0 +1,51 @@
+{
+  "name": "electron-app",
+  "version": "1.0.0",
+  "description": "My Electron App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "start:client": "cd client && npm start",
+    "start:server": "cd server && node index.js",
+    "build:client": "cd client && npm run build",
+    "package": "npm run build:client && electron-builder",
+    "dev": "concurrently \"npm run start:server\" \"npm run start:client\" \"wait-on http://localhost:3001 http://localhost:3000 && npm start\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "build": {
+    "appId": "com.electron.mediahub",
+    "productName": "MediaHub",
+    "files": [
+      "main.js",
+      "preload.js",
+      "server/**/*",
+      "client/build/**/*",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build_assets"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build_assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build_assets/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "build_assets/icon.png"
+    }
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "electron": "^36.4.0",
+    "electron-builder": "^26.0.12",
+    "wait-on": "^8.0.3"
+  }
+}

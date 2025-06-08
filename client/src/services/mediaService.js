@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = '/api';
+const API_URL = 'http://localhost:3001/api';
 const authAxios = axios.create({ baseURL: API_URL });
 
 authAxios.interceptors.request.use(
@@ -89,7 +89,7 @@ export const getMediaFileDetails = async (filePath) => {
   try { const encodedFilePath = encodeURIComponent(filePath); const response = await authAxios.get(`/media/file/${encodedFilePath}`); return response.data; }
   catch (error) { console.error('Media detail error:', error.response?.data || error.message); throw error.response ? error.response.data : new Error('Failed to fetch media details.'); }
 };
-export const getStreamUrl = (filePath) => `${API_URL}/stream/${encodeURIComponent(filePath)}`;
+export const getStreamUrl = (filePath) => `http://localhost:3001/stream/${encodeURIComponent(filePath)}`;
 export const uploadMediaFile = async (file, onUploadProgress) => {
   const formData = new FormData(); formData.append('mediafile', file);
   try { const response = await authAxios.post('/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' }, onUploadProgress: e => { if (onUploadProgress && e.total) onUploadProgress(Math.round((e.loaded * 100) / e.total)); } }); return response.data; }
@@ -99,7 +99,7 @@ export const uploadMediaFile = async (file, onUploadProgress) => {
 // --- External API Search Functions ---
 export const searchE621 = async (tags) => {
   try {
-    const response = await authAxios.get('/api/e621/search', { params: { tags } });
+    const response = await authAxios.get('/e621/search', { params: { tags } }); // Removed redundant /api
     return response.data;
   } catch (error) {
     console.error('Error searching e621:', error.response ? error.response.data : error.message);
@@ -109,7 +109,7 @@ export const searchE621 = async (tags) => {
 
 export const searchRule34 = async (tags) => {
   try {
-    const response = await authAxios.get('/api/rule34/search', { params: { tags } });
+    const response = await authAxios.get('/rule34/search', { params: { tags } }); // Removed redundant /api
     return response.data;
   } catch (error) {
     console.error('Error searching Rule34:', error.response ? error.response.data : error.message);
