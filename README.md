@@ -1,5 +1,5 @@
 # video-player
-## 8. Windows Deployment Guide
+## Deployment Guide
 
 This section provides instructions for deploying and running the Media Hub application on a Windows operating system.
 
