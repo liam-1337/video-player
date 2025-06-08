@@ -1,7 +1,14 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3001/api';
+// API_URL should now be relative, as the client is served from the same origin.
+const API_URL = '/api';
 const authAxios = axios.create({ baseURL: API_URL });
+
+// Axios instance for non-authenticated plain requests, if needed for register/login
+// However, register/login in this file already use axios.post with full path construction.
+// For consistency and if we change register/login to use a base URL, this might be useful.
+// For now, we will adjust existing axios.post calls for register/login.
+const plainAxios = axios.create({ baseURL: '/' }); // Base for root paths if ever needed
 
 authAxios.interceptors.request.use(
   (config) => {
@@ -14,11 +21,15 @@ authAxios.interceptors.request.use(
 
 // --- Auth Service ---
 export const registerUser = async (username, password, email) => {
-  try { const response = await axios.post(`${API_URL}/auth/register`, { username, password, email }); return response.data; }
+  // Using plainAxios or axios directly for public endpoints like register/login
+  // as they don't require Authorization header via authAxios interceptor initially.
+  // The API_URL is now /api, so the path becomes /api/auth/register.
+  try { const response = await axios.post('/api/auth/register', { username, password, email }); return response.data; }
   catch (error) { throw error.response ? error.response.data : new Error('Registration failed'); }
 };
 export const loginUser = async (username, password) => {
-  try { const response = await axios.post(`${API_URL}/auth/login`, { username, password });
+  // Similar to registerUser, using axios directly. Path becomes /api/auth/login.
+  try { const response = await axios.post('/api/auth/login', { username, password });
     if (response.data.token && response.data.user) { localStorage.setItem('mediaHubToken', response.data.token); localStorage.setItem('mediaHubUser', JSON.stringify(response.data.user));}
     return response.data;
   } catch (error) { throw error.response ? error.response.data : new Error('Login failed'); }
@@ -89,7 +100,7 @@ export const getMediaFileDetails = async (filePath) => {
   try { const encodedFilePath = encodeURIComponent(filePath); const response = await authAxios.get(`/media/file/${encodedFilePath}`); return response.data; }
   catch (error) { console.error('Media detail error:', error.response?.data || error.message); throw error.response ? error.response.data : new Error('Failed to fetch media details.'); }
 };
-export const getStreamUrl = (filePath) => `http://localhost:3001/stream/${encodeURIComponent(filePath)}`;
+export const getStreamUrl = (filePath) => `/stream/${encodeURIComponent(filePath)}`; // Adjusted to be relative
 export const uploadMediaFile = async (file, onUploadProgress) => {
   const formData = new FormData(); formData.append('mediafile', file);
   try { const response = await authAxios.post('/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' }, onUploadProgress: e => { if (onUploadProgress && e.total) onUploadProgress(Math.round((e.loaded * 100) / e.total)); } }); return response.data; }
@@ -97,9 +108,11 @@ export const uploadMediaFile = async (file, onUploadProgress) => {
 };
 
 // --- External API Search Functions ---
+// These are already using relative paths with authAxios, so they should be fine.
+// Example: authAxios.get('/e621/search', ...) will become a request to /api/e621/search
 export const searchE621 = async (tags) => {
   try {
-    const response = await authAxios.get('/e621/search', { params: { tags } }); // Removed redundant /api
+    const response = await authAxios.get('/e621/search', { params: { tags } });
     return response.data;
   } catch (error) {
     console.error('Error searching e621:', error.response ? error.response.data : error.message);
@@ -109,7 +122,7 @@ export const searchE621 = async (tags) => {
 
 export const searchRule34 = async (tags) => {
   try {
-    const response = await authAxios.get('/rule34/search', { params: { tags } }); // Removed redundant /api
+    const response = await authAxios.get('/rule34/search', { params: { tags } });
     return response.data;
   } catch (error) {
     console.error('Error searching Rule34:', error.response ? error.response.data : error.message);
