@@ -1,70 +1,110 @@
 /* --- Theme Variables --- */
 :root {
-  /* Light Theme (Default) */
-  --bg-color: #f4f7f6;
-  --text-color: #333;
-  --header-bg-color: #343a40;
-  --header-text-color: white;
-  --footer-bg-color: #343a40;
-  --footer-text-color: #f8f9fa;
-  --card-bg-color: #fff;
-  --card-border-color: #e0e0e0;
-  --card-text-color: #333;
-  --card-subtext-color: #555;
-  --button-bg-color: #007bff;
-  --button-text-color: white;
-  --input-bg-color: #495057; /* For search/sort in dark header */
-  --input-text-color: white;
-  --input-placeholder-color: #adb5bd;
-  --input-border-color: #555;
-  --player-overlay-bg: rgba(0, 0, 0, 0.7);
-  --player-container-bg: #fff;
-  --player-container-text-color: #333;
-  --modal-close-btn-color: #6c757d;
-  --upload-area-bg: #f9f9f9;
-  --upload-area-border: #ccc;
-  --progressbar-bg: #e0e0e0;
-  --progressbar-fill: #4caf50;
-  --link-color: #007bff;
-  --status-loading-color: #007bff;
-  --status-error-color: #dc3545;
-  --status-refreshing-color: #17a2b8;
+  /* Light Theme (Default) - Modern & Colorful */
+  --primary-color: #4A00E0; /* Deep Blue/Purple */
+  --accent-color: #FF007F;  /* Bright Pink/Magenta */
+  --complementary-color: #8E2DE2; /* Lighter Purple for gradients/buttons */
+
+  --bg-color: #F0F2F5; /* Light Gray */
+  --text-color: #333333; /* Dark Gray */
+
+  --header-bg-color: linear-gradient(90deg, var(--primary-color), var(--complementary-color));
+  --header-text-color: #FFFFFF;
+
+  --footer-bg-color: #2c3e50; /* Dark Slate Blue */
+  --footer-text-color: #ecf0f1; /* Light Grayish Blue */
+
+  --card-bg-color: #FFFFFF;
+  --card-border-color: #E0E0E0;
+  --card-text-color: var(--text-color);
+  --card-subtext-color: #555555;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Softer shadow */
+
+  --button-bg-color: var(--accent-color);
+  --button-text-color: #FFFFFF;
+  --button-hover-bg-color: #E0006F; /* Darker accent */
+
+  --input-bg-color: #FFFFFF;
+  --input-text-color: var(--text-color);
+  --input-placeholder-color: #777777;
+  --input-border-color: #CCCCCC;
+  --input-focus-border-color: var(--primary-color);
+
+  --player-overlay-bg: rgba(0, 0, 0, 0.75);
+  --player-container-bg: #FFFFFF;
+  --player-container-text-color: var(--text-color);
+
+  --modal-close-btn-color: #888888;
+  --upload-area-bg: #F8F9FA;
+  --upload-area-border: var(--input-border-color);
+
+  --progressbar-bg: #E9ECEF;
+  --progressbar-fill: var(--accent-color);
+
+  --link-color: var(--primary-color);
+  --link-hover-color: var(--complementary-color);
+
+  --status-loading-color: var(--primary-color);
+  --status-error-color: #E74C3C; /* Red */
+  --status-refreshing-color: #3498DB; /* Blue */
+
+  --button-focus-shadow: rgba(74, 0, 224, 0.25);
 }
 
 body.theme-dark {
-  --bg-color: #1a1a1a;
-  --text-color: #e0e0e0;
-  --header-bg-color: #212529;
-  --header-text-color: #f8f9fa;
-  --footer-bg-color: #212529;
-  --footer-text-color: #f0f0f0;
-  --card-bg-color: #2c2c2c;
-  --card-border-color: #444;
-  --card-text-color: #e0e0e0;
-  --card-subtext-color: #bbb;
-  --button-bg-color: #0069d9;
-  --button-text-color: white;
-  --input-bg-color: #343a40;
-  --input-text-color: #f0f0f0;
-  --input-placeholder-color: #999;
-  --input-border-color: #666;
-  --player-overlay-bg: rgba(0, 0, 0, 0.8);
-  --player-container-bg: #2c2c2c;
-  --player-container-text-color: #e0e0e0;
-  --modal-close-btn-color: #aaa;
+  --primary-color: #8E2DE2; /* Lighter Purple for Dark Mode Primary */
+  --accent-color: #FF007F;  /* Bright Pink/Magenta (can remain same or be adjusted) */
+  --complementary-color: #4A00E0; /* Darker Purple for Dark Mode accents */
+
+  --bg-color: #121212; /* Very Dark Gray/Black */
+  --text-color: #E0E0E0; /* Light Gray */
+
+  --header-bg-color: linear-gradient(90deg, var(--complementary-color), var(--primary-color));
+  --header-text-color: #FFFFFF;
+
+  --footer-bg-color: #1A1A1A;
+  --footer-text-color: #B0B0B0;
+
+  --card-bg-color: #1E1E1E; /* Dark Gray */
+  --card-border-color: #333333;
+  --card-text-color: var(--text-color);
+  --card-subtext-color: #AAAAAA;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+  --button-bg-color: var(--accent-color);
+  --button-text-color: #FFFFFF;
+  --button-hover-bg-color: #E0006F;
+
+  --input-bg-color: #2C2C2C;
+  --input-text-color: var(--text-color);
+  --input-placeholder-color: #888888;
+  --input-border-color: #444444;
+  --input-focus-border-color: var(--primary-color);
+
+  --player-overlay-bg: rgba(0, 0, 0, 0.85);
+  --player-container-bg: var(--card-bg-color);
+  --player-container-text-color: var(--text-color);
+
+  --modal-close-btn-color: #AAAAAA;
   --upload-area-bg: #252525;
-  --upload-area-border: #444;
-  --progressbar-bg: #555;
-  --progressbar-fill: #5cb85c;
-  --link-color: #00aeff;
-  --status-loading-color: #00aeff;
-  --status-error-color: #ff6b6b;
-  --status-refreshing-color: #20c997;
+  --upload-area-border: var(--input-border-color);
+
+  --progressbar-bg: #333333;
+  --progressbar-fill: var(--accent-color);
+
+  --link-color: var(--primary-color);
+  --link-hover-color: #BB86FC; /* Lighter purple for dark mode links */
+
+  --status-loading-color: var(--primary-color);
+  --status-error-color: #CF6679; /* Material Dark Error */
+  --status-refreshing-color: #62A0EA;
+
+  --button-focus-shadow: rgba(142, 45, 226, 0.3);
 }
 
 /* --- General Body Styles --- */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Added Poppins */
   margin: 0;
   background-color: var(--bg-color);
   color: var(--text-color);
@@ -84,7 +124,7 @@ body {
   background-color: var(--header-bg-color);
   color: var(--header-text-color);
   padding: 15px 30px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* Slightly enhanced shadow */
   position: sticky;
   top: 0;
   z-index: 100;
@@ -106,14 +146,18 @@ body {
   padding: 8px 12px;
   background-color: var(--button-bg-color);
   color: var(--button-text-color);
-  border: 1px solid var(--input-border-color); /* Added border for better visibility */
-  border-radius: 4px;
+  background-color: transparent; /* Making it blend with header gradient */
+  color: var(--header-text-color);
+  border: 1px solid var(--header-text-color);
+  border-radius: 20px; /* More rounded */
   cursor: pointer;
   font-size: 0.9em;
-  transition: background-color 0.2s, border-color 0.2s;
+  padding: 8px 15px; /* Adjusted padding */
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 .ThemeToggleBtn:hover {
-  opacity: 0.9;
+  background-color: rgba(255, 255, 255, 0.1); /* Subtle hover for gradient */
+  border-color: var(--accent-color);
 }
 
 
@@ -137,17 +181,19 @@ body {
   box-sizing: border-box;
   padding: 10px 15px;
   border: 1px solid var(--input-border-color);
-  border-radius: 20px;
+  border-radius: 25px; /* More rounded */
   font-size: 1em;
   background-color: var(--input-bg-color);
   color: var(--input-text-color);
   outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 .App-SearchInput::placeholder {
   color: var(--input-placeholder-color);
 }
 .App-SearchInput:focus {
-  border-color: var(--button-bg-color);
+  border-color: var(--input-focus-border-color);
+  box-shadow: 0 0 0 0.2rem var(--button-focus-shadow);
 }
 
 .App-SortContainer {
@@ -164,14 +210,16 @@ body {
 .App-SortSelect {
   padding: 8px 12px;
   border: 1px solid var(--input-border-color);
-  border-radius: 4px;
+  border-radius: 8px; /* Slightly more rounded */
   background-color: var(--input-bg-color);
   color: var(--input-text-color);
   font-size: 0.9em;
   outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 .App-SortSelect:focus {
-  border-color: var(--button-bg-color);
+  border-color: var(--input-focus-border-color);
+  box-shadow: 0 0 0 0.2rem var(--button-focus-shadow);
 }
 
 
@@ -239,6 +287,13 @@ body {
   background-color: var(--card-bg-color);
   border: 1px solid var(--card-border-color);
   color: var(--card-text-color);
+  border-radius: 8px; /* Added border-radius to cards */
+  box-shadow: var(--card-shadow); /* Added shadow to cards */
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.MediaItemCard:hover {
+  transform: translateY(-3px); /* Subtle lift on hover */
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
 }
 .MediaItemCard-Details h3 { color: var(--card-text-color); }
 .MediaItemCard-Type { color: var(--card-subtext-color); }
@@ -298,14 +353,43 @@ body.theme-light .plyr__menu__item:hover { background: var(--progressbar-bg) !im
 .App-Logo { text-decoration: none; color: inherit; }
 .App-Header-UserControls { display: flex; align-items: center; gap: 10px; }
 .UserInfo { font-size: 0.9em; margin-right: 5px; }
-.AuthBtn { padding: 6px 10px; background-color: var(--button-bg-color); color: var(--button-text-color); border: none; border-radius: 4px; cursor: pointer; font-size: 0.85em; text-decoration: none; display: inline-block; text-align: center; }
-.AuthBtn:hover { opacity: 0.85; }
-.ThemeToggleBtn { background: transparent; border: 1px solid var(--input-border-color); color: var(--header-text-color); width: 36px; height: 36px; border-radius: 50%; font-size: 1.2em; display: flex; align-items: center; justify-content: center; }
-.ThemeToggleBtn:hover { border-color: var(--button-bg-color); }
-/* Ensure AuthForm.css variable is defined in :root or body.theme-dark if used */
-:root { --button-focus-shadow: rgba(0,123,255,.25); }
-body.theme-dark { --button-focus-shadow: rgba(0,174,255,.25); }
+.AuthBtn {
+  padding: 8px 15px; /* Increased padding */
+  background-color: var(--button-bg-color);
+  color: var(--button-text-color);
+  border: none;
+  border-radius: 20px; /* More rounded */
+  cursor: pointer;
+  font-size: 0.9em; /* Slightly larger font */
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  transition: background-color 0.2s;
+}
+.AuthBtn:hover {
+  background-color: var(--button-hover-bg-color); /* Use hover variable */
+}
+/* Re-style .ThemeToggleBtn for icon if it's just an icon, or keep as is if text */
+/* Assuming it might become an icon button */
+.ThemeToggleBtn {
+  background: transparent;
+  border: 1px solid var(--header-text-color); /* Adjusted for gradient header */
+  color: var(--header-text-color);
+  width: 40px; /* Slightly larger */
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.3em; /* Larger icon/text */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+.ThemeToggleBtn:hover {
+  background-color: rgba(255,255,255,0.15);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
 
-.PageContent { padding: 20px; } /* Basic padding for pages like SharedWithMePage */
+.PageContent { padding: 25px; } /* Basic padding for pages like SharedWithMePage */
 .PageContent h2 { margin-top: 0; color: var(--text-color); margin-bottom: 20px; }
 .VRPlayerOverlay { background-color: #000; /* VR usually best on black */ }
