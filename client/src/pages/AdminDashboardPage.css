@@ -1,0 +1,67 @@
+.AdminDashboardPage { padding: 20px; }
+.AdminDashboardPage h1 { margin-bottom: 20px; }
+.AdminDashboardPage nav ul { list-style-type: none; padding: 0; }
+.AdminDashboardPage nav ul li { margin-bottom: 10px; }
+.AdminDashboardPage nav ul li a { text-decoration: none; font-size: 1.2em; color: #007bff; }
+.AdminDashboardPage nav ul li a:hover { text-decoration: underline; color: #0056b3; }
+.AdminDashboardPage .admin-section { margin-top: 30px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+
+/* Styles for the new stats section */
+.AdminDashboardPage .dashboard-stats {
+  background-color: #f9f9f9; /* Light background for the stats section */
+  padding: 20px;
+  border-radius: 8px; /* Slightly more rounded */
+  margin-bottom: 30px; /* Increased margin */
+  border: 1px solid #e7e7e7; /* Softer border */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Subtle shadow */
+}
+
+.AdminDashboardPage .dashboard-stats h2 {
+  margin-top: 0;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 20px; /* Increased margin */
+  font-size: 1.4em; /* Slightly larger heading */
+  color: #333;
+}
+
+.AdminDashboardPage .stats-grid {
+  display: flex;
+  gap: 25px; /* Increased gap */
+  flex-wrap: wrap;
+}
+
+.AdminDashboardPage .stat-item {
+  background-color: #fff;
+  padding: 20px; /* Increased padding */
+  border-radius: 6px; /* Slightly more rounded */
+  border: 1px solid #e0e0e0;
+  flex-grow: 1;
+  min-width: 180px; /* Slightly wider min-width */
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07); /* Slightly more pronounced shadow */
+  text-align: center; /* Center text */
+}
+
+.AdminDashboardPage .stat-item h4 {
+  margin-top: 0;
+  margin-bottom: 8px; /* Increased margin */
+  font-size: 1.1em; /* Slightly larger sub-heading */
+  color: #555; /* Softer color */
+  font-weight: 500; /* Normal weight */
+}
+
+.AdminDashboardPage .stat-item p {
+  font-size: 2em; /* Larger font for the stat number */
+  font-weight: bold;
+  margin: 0;
+  color: #007bff;
+}
+
+.AdminDashboardPage .error-message {
+  color: #D8000C; /* Standard error red */
+  background-color: #FFD2D2; /* Light red background */
+  padding: 10px 15px;
+  border-radius: 4px;
+  border: 1px solid #D8000C;
+  margin-top: 10px;
+}

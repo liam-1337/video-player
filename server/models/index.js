@@ -26,6 +26,7 @@ const User = sequelize.define('User', {
   password: { type: DataTypes.STRING, allowNull: false },
   preferredTheme: { type: DataTypes.STRING, allowNull: true, defaultValue: 'light' },
   defaultSortOption: { type: DataTypes.STRING, allowNull: true, defaultValue: 'lastModified_desc' },
+  isAdmin: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
 }, { timestamps: true });
 
 // --- UserMediaProgress Model ---
