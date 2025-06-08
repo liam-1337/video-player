@@ -1,18 +1,20 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  selectMediaDirectory: () => ipcRenderer.invoke('select-media-directory')
+  openDirectoryDialog: () => ipcRenderer.invoke('dialog:openDirectory')
 })
 
-// Original preload content, can be kept if still needed for index.html
+// The rest of your preload script (if any) can remain.
+// For example, the DOMContentLoaded listener:
 window.addEventListener('DOMContentLoaded', () => {
   const replaceText = (selector, text) => {
     const element = document.getElementById(selector)
     if (element) element.innerText = text
   }
 
-  for (const type of ['chrome', 'node', 'electron']) {
-    const el = document.getElementById(`${type}-version`)
-    if (el) el.innerText = process.versions[type]
+  for (const dependency of ['chrome', 'node', 'electron']) {
+    if (process.versions[dependency]) { // Check if the version property exists
+      replaceText(`${dependency}-version`, process.versions[dependency])
+    }
   }
 })

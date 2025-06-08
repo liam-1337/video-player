@@ -82,57 +82,57 @@ async function runTests() {
     }
 
     const movieItemForTest = mediaItems.find(item => item.name === 'movie1.mp4');
-    const seriesItemForTest = mediaItems.find(item => item.name === 'series_ep1.mkv'); // item.name is like 'series_ep1.mkv'
-                                                                                      // item.path is like 'videos/series_ep1.mkv'
-    if (movieItemForTest && movieItemForTest.path) {
-        const movieRelativePath = movieItemForTest.path; // This should be 'videos/movie1.mp4' or similar
-        const encodedMovieRelativePath = encodeURIComponent(movieRelativePath);
-        log(`Testing /api/media/file/${encodedMovieRelativePath}`);
+    const seriesItemForTest = mediaItems.find(item => item.name === 'series_ep1.mkv');
+
+    if (movieItemForTest) {
+        const movieFilePath = 'movie1.mp4';
+        const encodedMovieFilePath = encodeURIComponent(movieFilePath);
+        log(`Testing /api/media/file/${encodedMovieFilePath}`);
         try {
-            const response = await axios.get(`${API_BASE_URL}/media/file/${encodedMovieRelativePath}`);
-            if (response.status === 200 && response.data.name === movieItemForTest.name) {
-                 pass(`Get Media File Details (${movieItemForTest.name})`);
+            const response = await axios.get(`${API_BASE_URL}/media/file/${encodedMovieFilePath}`);
+            if (response.status === 200 && response.data.name === 'movie1.mp4') {
+                 pass('Get Media File Details (movie1.mp4)');
             } else {
-              fail(`Get Media File Details (${movieItemForTest.name})`, `Status: ${response.status}, Data: ${JSON.stringify(response.data)}`);
+              fail('Get Media File Details (movie1.mp4)', `Status: ${response.status}, Data: ${JSON.stringify(response.data)}`);
             }
         } catch (e) {
-            fail(`Get Media File Details (${movieItemForTest.name})`, e.message);
+            fail('Get Media File Details (movie1.mp4)', e.message);
         }
 
-        log(`Testing stream for 0-byte file /api/stream/${encodedMovieRelativePath} (NO Range header)`);
+        log(`Testing stream for 0-byte file /api/stream/${encodedMovieFilePath} (NO Range header)`);
         try {
-          const response = await axios.get(`${API_BASE_URL}/stream/${encodedMovieRelativePath}`);
+          // REMOVED Range header for this 0-byte file test
+          const response = await axios.get(`${API_BASE_URL}/stream/${encodedMovieFilePath}`);
           if (response.status === 200 && response.headers['content-length'] === '0') {
-             pass(`Stream 0-byte Media (${movieItemForTest.name} - 200 OK, Content-Length: 0, no Range)`);
+             pass('Stream 0-byte Media (movie1.mp4 - 200 OK, Content-Length: 0, no Range)');
           } else {
-            fail(`Stream 0-byte Media (${movieItemForTest.name} - no Range)`, `Expected 200 & CL:0, Got Status: ${response.status}, Headers: ${JSON.stringify(response.headers)}`);
+            fail('Stream 0-byte Media (movie1.mp4 - no Range)', `Expected 200 & CL:0, Got Status: ${response.status}, Headers: ${JSON.stringify(response.headers)}`);
           }
         } catch (e) {
-            fail(`Stream 0-byte Media (${movieItemForTest.name} - no Range)`, e.message);
+            fail('Stream 0-byte Media (movie1.mp4 - no Range)', e.message);
         }
     } else {
-        fail('Setup for movie1.mp4 tests', 'movie1.mp4 (or its path) not found in media list.');
+        fail('Setup for movie1.mp4 tests', 'movie1.mp4 not found in media list.');
     }
 
-    if (seriesItemForTest && seriesItemForTest.path) {
-        const seriesRelativePath = seriesItemForTest.path; // This should be 'videos/series_ep1.mkv'
-        const encodedSeriesRelativePath = encodeURIComponent(seriesRelativePath);
-        log(`Testing stream for non-empty file /api/stream/${encodedSeriesRelativePath}`);
+    if (seriesItemForTest) {
+        const seriesFilePath = 'series_ep1.mkv';
+        const encodedSeriesFilePath = encodeURIComponent(seriesFilePath);
+        log(`Testing stream for non-empty file /api/stream/${encodedSeriesFilePath}`);
         try {
-          const response = await axios.get(`${API_BASE_URL}/stream/${encodedSeriesRelativePath}`, {
-            headers: { 'Range': 'bytes=0-4' }, // series_ep1.mkv has "some data" (9 bytes)
+          const response = await axios.get(`${API_BASE_URL}/stream/${encodedSeriesFilePath}`, {
+            headers: { 'Range': 'bytes=0-4' },
           });
-          // For "some data" (9 bytes), range 0-4 should give Content-Length 5 and Content-Range bytes 0-4/9
           if (response.status === 206 && response.headers['content-length'] === '5' && response.headers['content-range'] === 'bytes 0-4/9') {
-             pass(`Stream Non-Empty Media (${seriesItemForTest.name} - Range 0-4)`);
+             pass('Stream Non-Empty Media (series_ep1.mkv - Range 0-4)');
           } else {
-            fail(`Stream Non-Empty Media (${seriesItemForTest.name} - Range 0-4)`, `Expected 206 & CL:5 & CR:bytes 0-4/9, Got Status: ${response.status}, Headers: ${JSON.stringify(response.headers)}`);
+            fail('Stream Non-Empty Media (series_ep1.mkv - Range 0-4)', `Expected 206 & CL:5 & CR:bytes 0-4/9, Got Status: ${response.status}, Headers: ${JSON.stringify(response.headers)}`);
           }
         } catch (e) {
-            fail(`Stream Non-Empty Media (${seriesItemForTest.name} - Range 0-4)`, e.message);
+            fail('Stream Non-Empty Media (series_ep1.mkv - Range 0-4)', e.message);
         }
     } else {
-        fail('Setup for series_ep1.mkv tests', 'series_ep1.mkv (or its path) not found in media list.');
+        fail('Setup for series_ep1.mkv tests', 'series_ep1.mkv not found in media list.');
     }
 
   } catch (mainError) {

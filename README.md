@@ -100,3 +100,8 @@ This section provides instructions for deploying and running the Media Hub appli
 *   If you cannot access Media Hub from other devices on your local network (or if Windows Defender prompts you), you may need to create an inbound rule in the Windows Defender Firewall to allow connections to the port the server is using (e.g., TCP port 3001). Search for "Windows Defender Firewall with Advanced Security" to manage rules.
 
 This concludes the basic Windows deployment guide. For more advanced scenarios like running as a Windows service or using a reverse proxy like IIS or Nginx, further research and configuration would be required.
+
+## Desktop Application
+
+A standalone desktop version of MediaHub is also available, packaged with Electron.
+For instructions on how to build, run, and use the desktop application, please see [DESKTOP_README.md](./DESKTOP_README.md).

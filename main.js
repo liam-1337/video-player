@@ -1,48 +1,27 @@
 const { app, BrowserWindow, Menu, ipcMain, dialog } = require('electron')
-const { fork } = require('child_process')
 const path = require('path')
+const { spawn } = require('child_process')
 
 let serverProcess
-let mainWindow
-
-function createAboutWindow() {
-  const aboutWindow = new BrowserWindow({
-    width: 300,
-    height: 200,
-    title: 'About Media Server Deluxe',
-    modal: true,
-    parent: mainWindow, // Make sure mainWindow is defined and available
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-    }
-  });
-  aboutWindow.setMenuBarVisibility(false); // No menu for the about window
-  aboutWindow.loadURL(`data:text/html;charset=utf-8,
-    <html>
-      <head><title>About</title></head>
-      <body style="font-family: sans-serif; text-align: center; padding: 20px;">
-        <h2>Media Server Deluxe</h2>
-        <p>Version ${app.getVersion()}</p>
-        <p>An Electron, React, and Node.js application.</p>
-      </body>
-    </html>`);
-}
+let mainWindow // Declare mainWindow in a broader scope
 
 function createWindow () {
-  mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({ // Assign to the broader scope variable
     width: 800,
     height: 600,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js') // Corrected path for preload
+      preload: path.join(__dirname, 'preload.js')
     }
   })
 
-  // Load the index.html from the React app's build directory
-  mainWindow.loadFile(path.join(__dirname, 'client/build/index.html'))
+  if (process.env.NODE_ENV === 'development') {
+    win.loadURL('http://localhost:3000')
+  } else {
+    win.loadFile(path.join(__dirname, 'client', 'build', 'index.html')) // Corrected path
+  }
 }
 
-// Menu Template
+// Define the menu template
 const menuTemplate = [
   {
     label: 'File',
@@ -65,8 +44,14 @@ const menuTemplate = [
     label: 'View',
     submenu: [
       { role: 'reload' },
-      { role: 'forcereload' },
-      { role: 'toggledevtools' },
+      { role: 'forceReload' },
+      { role: 'toggleDevTools' },
+      { type: 'separator' },
+      { role: 'resetZoom' },
+      { role: 'zoomIn' },
+      { role: 'zoomOut' },
+      { type: 'separator' },
+      { role: 'togglefullscreen' }
     ]
   },
   {
@@ -74,34 +59,55 @@ const menuTemplate = [
     submenu: [
       {
         label: 'About',
-        click: createAboutWindow
+        click: async () => {
+          const { dialog } = require('electron') // Local require for dialog
+          dialog.showMessageBox(null, {
+            type: 'info',
+            title: 'About MediaHub',
+            message: 'MediaHub Electron App',
+            detail: 'Version 1.0.0' // Replace with actual app version if available
+          })
+        }
       }
     ]
   }
 ];
 
 app.whenReady().then(() => {
-  // Set up application menu
+  // Set the application menu
   const menu = Menu.buildFromTemplate(menuTemplate);
   Menu.setApplicationMenu(menu);
 
-  // Pass the userData path to the server process via environment variable
-  const userDataPath = app.getPath('userData')
-  serverProcess = fork(path.join(__dirname, 'server', 'index.js'), [], {
-    env: { ...process.env, MEDIA_LIBRARY_PATH: path.join(userDataPath, 'MediaLibrary'), DB_PATH: path.join(userDataPath, 'database.sqlite') }
-  })
+  // IPC handler for opening directory dialog
+  ipcMain.handle('dialog:openDirectory', async () => {
+    if (!mainWindow) {
+      console.error('Main window not available for dialog');
+      return null;
+    }
+    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+      properties: ['openDirectory']
+    });
+    if (canceled) {
+      return null;
+    } else {
+      return filePaths[0];
+    }
+  });
+
+  // Start the Node.js server
+  serverProcess = spawn('node', ['server/index.js'], { cwd: path.join(__dirname) })
 
   serverProcess.stdout.on('data', (data) => {
-    console.log(`Server stdout: ${data}`)
-  })
+    console.log(`Server stdout: ${data}`);
+  });
 
   serverProcess.stderr.on('data', (data) => {
-    console.error(`Server stderr: ${data}`)
-  })
+    console.error(`Server stderr: ${data}`);
+  });
 
   serverProcess.on('close', (code) => {
-    console.log(`Server process exited with code ${code}`)
-  })
+    console.log(`Server process exited with code ${code}`);
+  });
 
   createWindow()
 
@@ -110,31 +116,14 @@ app.whenReady().then(() => {
   })
 })
 
-// IPC handler for directory selection
-ipcMain.handle('select-media-directory', async () => {
-  if (!mainWindow) {
-    console.error('Main window not available for dialog.');
-    return null;
-  }
-  const result = await dialog.showOpenDialog(mainWindow, {
-    properties: ['openDirectory']
-  })
-  if (result.canceled) {
-    return null
-  } else {
-    return result.filePaths[0]
-  }
-})
-
 app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  if (process.platform !== 'darwin') app.quit()
 })
 
 app.on('will-quit', () => {
+  // Kill the server process before quitting
   if (serverProcess) {
-    console.log('Killing server process')
     serverProcess.kill()
+    serverProcess = null
   }
 })
