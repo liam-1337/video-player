@@ -13,6 +13,11 @@ import ContinueWatchingSection from './components/sections/ContinueWatchingSecti
 import SharedWithMePage from './pages/SharedWithMePage';
 import WatchTogetherPage from './pages/WatchTogetherPage';
 import ExternalMediaSearchPage from './pages/ExternalMediaSearchPage'; // Import the new page
+import AdminDashboardPage from './pages/AdminDashboardPage'; // Import AdminDashboardPage
+import AdminUserManagementPage from './pages/admin/AdminUserManagementPage'; // Import AdminUserManagementPage
+import AdminMediaManagementPage from './pages/admin/AdminMediaManagementPage'; // Import AdminMediaManagementPage
+import AdminSystemMonitoringPage from './pages/admin/AdminSystemMonitoringPage'; // Import AdminSystemMonitoringPage
+import AdminRoute from './components/auth/AdminRoute'; // Import AdminRoute
 
 import 'plyr/dist/plyr.css';
 import './App.css';
@@ -74,6 +79,9 @@ function AppContent() {
             <span className="UserInfo">Hi, {currentUser.username}!</span>
             <Link to="/shared-with-me" className="AuthBtn SmallBtn" title="Media shared with you">Shared</Link>
             <Link to="/search-external" className="AuthBtn SmallBtn" title="Search External Media">External Search</Link>
+            {currentUser.isAdmin && (
+              <Link to="/admin" className="AuthBtn SmallBtn" title="Admin Dashboard">Admin</Link>
+            )}
             <button onClick={() => { logout(); navigate('/login'); }} className="AuthBtn">Logout</button>
           </>
         ) : (
@@ -88,12 +96,22 @@ function AppContent() {
         {location.pathname === '/login' && location.search.includes('registration=success') && !isAuthenticated && <p className="auth-success-msg">Registration successful! Please login.</p>}
       </header>
       <main className="App-MainContent">
+        {location.state?.error === 'unauthorized' && (
+          <p style={{ color: 'red', textAlign: 'center', background: 'rgba(255,0,0,0.1)', padding: '10px', borderRadius: '5px', marginTop: '10px', marginBottom: '10px' }}>
+            You are not authorized to access that page.
+          </p>
+        )}
         <Routes>
           <Route path="/login" element={isAuthenticated ? <Navigate to="/" /> : <LoginForm />} />
           <Route path="/register" element={isAuthenticated ? <Navigate to="/" /> : <RegisterForm />} />
           <Route path="/shared-with-me" element={<ProtectedRoute><SharedWithMePage onPlayMedia={handlePlayMedia} /></ProtectedRoute>} />
           <Route path="/watch/:encodedMediaIdFromUrl/together" element={<ProtectedRoute><WatchTogetherPage /></ProtectedRoute>} />
           <Route path="/search-external" element={<ProtectedRoute><ExternalMediaSearchPage /></ProtectedRoute>} /> {/* New Route */}
+          <Route path="/admin" element={<AdminRoute><AdminDashboardPage /></AdminRoute>} />
+          <Route path="/admin/users" element={<AdminRoute><AdminUserManagementPage /></AdminRoute>} />
+          <Route path="/admin/media" element={<AdminRoute><AdminMediaManagementPage /></AdminRoute>} />
+          <Route path="/admin/system" element={<AdminRoute><AdminSystemMonitoringPage /></AdminRoute>} />
+          {/* Further nested admin routes can be added here */}
           <Route path="/" element={ <ProtectedRoute> {loadingMedia && mediaList.length === 0 && !error ? <div className="App-Status App-Loading">Loading media...</div> : error && mediaList.length === 0 && !isRefreshing ? <div className="App-Status App-Error">Error: {error}</div> : (<> <ContinueWatchingSection onPlayMedia={handlePlayMedia} refreshKey={refreshKey} /> <MediaGrid mediaList={filteredMediaList} onPlayMedia={handlePlayMedia} /> </>)} </ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
