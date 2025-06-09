@@ -8,7 +8,7 @@
     "start:client": "cd client && npm start",
     "start:server": "cd server && node index.js",
     "build:client": "cd client && npm run build",
-    "package": "npm run build:client && electron-builder",
+    "package": "npm run build:client && npx electron-builder",
     "dev": "concurrently \"npm run start:server\" \"npm run start:client\" \"wait-on http://localhost:3001 http://localhost:3000 && npm start\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
