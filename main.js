@@ -14,15 +14,18 @@ function createWindow () {
     }
   })
 
+  // Load the index.html from the Express server
+  const serverUrl = `http://localhost:${process.env.PORT || 3001}`;
+  mainWindow.loadURL(serverUrl); // Use mainWindow here
+
+  // Open DevTools in development
   if (process.env.NODE_ENV === 'development') {
-    win.loadURL('http://localhost:3000')
-  } else {
-    win.loadFile(path.join(__dirname, 'client', 'build', 'index.html')) // Corrected path
+    mainWindow.webContents.openDevTools(); // Use mainWindow here
   }
 }
 
 // Define the menu template
-const menuTemplate = [
+const menuTemplate = [ // Ensure menuTemplate is defined before being used
   {
     label: 'File',
     submenu: [
@@ -80,11 +83,12 @@ app.whenReady().then(() => {
 
   // IPC handler for opening directory dialog
   ipcMain.handle('dialog:openDirectory', async () => {
-    if (!mainWindow) {
-      console.error('Main window not available for dialog');
+    const currentWindow = BrowserWindow.getFocusedWindow(); // Get currently focused window
+    if (!currentWindow) {
+      console.error('No window available for dialog');
       return null;
     }
-    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+    const { canceled, filePaths } = await dialog.showOpenDialog(currentWindow, { // Use currentWindow
       properties: ['openDirectory']
     });
     if (canceled) {
@@ -95,7 +99,7 @@ app.whenReady().then(() => {
   });
 
   // Start the Node.js server
-  serverProcess = spawn('node', ['server/index.js'], { cwd: path.join(__dirname) })
+  serverProcess = spawn('node', ['server/index.js'], { cwd: path.join(__dirname), env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' } }) // Added ELECTRON_RUN_AS_NODE
 
   serverProcess.stdout.on('data', (data) => {
     console.log(`Server stdout: ${data}`);

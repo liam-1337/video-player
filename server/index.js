@@ -1,26 +1,33 @@
 const express = require('express');
 const cors = require('cors');
-const jwt = require('jsonwebtoken'); // Import jsonwebtoken
-const os = require('os'); // Import os module
-const fs = require('fs').promises; // Import fs.promises for async file operations
-const path = require('path'); // Import path module
-const { searchE621, searchRule34 } = require('./externalApiControllers');
-const { User } = require('./models');
-const { getMediaInDirectories, getMediaFileDetails } = require('./mediaScanner'); // Import mediaScanner functions
-
-// In a production app, this secret should be stored in an environment variable
-const JWT_SECRET = 'your-super-secret-jwt-key-for-dev';
+const jwt = require('jsonwebtoken'); // Import jsonwebtoken from feat branch
+const os = require('os'); // Import os module from feat branch
+const fs = require('fs').promises; // Import fs.promises for async file operations from feat branch
+const path = require('path'); // Import path module (common, but explicit from feat)
+const { searchE621, searchRule34 } = require('./externalApiControllers'); // Common
+const { register, login } = require('./authController'); // Import auth controllers from main branch
+const { initializeDatabase, User } = require('./models'); // Import database initializer and User model
+const { getMediaInDirectories, getMediaFileDetails } = require('./mediaScanner'); // Import mediaScanner functions from feat branch
 
 const app = express();
 const port = process.env.PORT || 3001;
 
+// In a production app, this secret should be stored in an environment variable
+const JWT_SECRET = 'your-super-secret-jwt-key-for-dev'; // From feat branch
+
 app.use(cors());
 app.use(express.json());
 
-app.get('/api/e621/search', searchE621);
-app.get('/api/rule34/search', searchRule34);
+// Initialize database
+initializeDatabase(); // From main branch
 
-// --- Auth Middleware ---
+// API routes (should be before static serving and catch-all)
+app.post('/api/auth/register', register); // From main branch
+app.post('/api/auth/login', login); // From main branch
+app.get('/api/e621/search', searchE621); // Common
+app.get('/api/rule34/search', searchRule34); // Common
+
+// --- Auth Middleware (from feat branch) ---
 const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
@@ -49,7 +56,7 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-// --- Admin Middleware ---
+// --- Admin Middleware (from feat branch) ---
 const isAdminMiddleware = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
     next();
@@ -58,12 +65,20 @@ const isAdminMiddleware = (req, res, next) => {
   }
 };
 
-// --- Admin Routes ---
+// Define media directories (Consider making this configurable)
+const mediaBaseDirectories = [ // From feat branch
+  'server/media_library/videos',
+  'server/media_library/music',
+  'server/media_library/images',
+  'server/media_library/videos_vr'
+];
+
+// --- Admin Routes (from feat branch) ---
 // Apply authMiddleware before isAdminMiddleware for the admin stats route
 app.get('/api/admin/stats', authMiddleware, isAdminMiddleware, async (req, res) => {
   try {
     const userCount = await User.count();
-    const mediaItems = await getMediaInDirectories(mediaBaseDirectories); // mediaBaseDirectories is defined below
+    const mediaItems = await getMediaInDirectories(mediaBaseDirectories);
     const mediaCount = mediaItems.length;
     res.json({ users: userCount, media: mediaCount });
   } catch (error) {
@@ -120,14 +135,6 @@ app.post('/api/admin/media/rescan', authMiddleware, isAdminMiddleware, async (re
     res.status(500).json({ message: 'Error during media rescan.' });
   }
 });
-
-// Define media directories (Consider making this configurable)
-const mediaBaseDirectories = [
-  'server/media_library/videos',
-  'server/media_library/music',
-  'server/media_library/images',
-  'server/media_library/videos_vr'
-];
 
 // Get all media items (Admin only)
 app.get('/api/admin/media', authMiddleware, isAdminMiddleware, async (req, res) => {
@@ -252,10 +259,20 @@ app.get('/api/admin/logs/:logtype', authMiddleware, isAdminMiddleware, async (re
   }
 });
 
-// module.parent is deprecated, use require.main
+// Serve static files from the React app (from main branch, must be after all API routes)
+const clientBuildPath = path.join(__dirname, '../client/build');
+app.use(express.static(clientBuildPath));
+
+// The "catchall" handler: for any request that doesn't
+// match one above, send back React's index.html file. (from main branch, must be last)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(clientBuildPath, 'index.html'));
+});
+
+// module.parent is deprecated, use require.main (from feat branch's final block)
 if (require.main === module) {
   app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
   });
 }
-module.exports = app; // Export app for testing
+module.exports = app; // Export app for testing (from feat branch)

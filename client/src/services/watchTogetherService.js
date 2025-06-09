@@ -37,7 +37,7 @@ const sendMessage = (message) => {
 
 const closeConnection = () => { if (socket) { socket.close(); socket = null; }};
 
-export default {
+const watchTogetherService = {
   connect, sendMessage, closeConnection,
   setOnMessageHandler: (h) => { onMessageHandler = h; },
   setOnOpenHandler: (h) => { onOpenHandler = h; },
@@ -45,3 +45,4 @@ export default {
   setOnErrorHandler: (h) => { onErrorHandler = h; },
   getSocketState: () => socket?.readyState // Expose socket state
 };
+export default watchTogetherService;
