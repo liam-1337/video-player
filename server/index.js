@@ -39,7 +39,7 @@ const authMiddleware = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await User.findByPk(decoded.userId);
+    const user = await User.findByPk(decoded.id); // New line
 
     if (!user) {
       return res.status(401).json({ message: 'Unauthorized: User not found.' });
@@ -107,9 +107,9 @@ app.get('/api/admin/system/status', authMiddleware, isAdminMiddleware, async (re
 });
 
 // Get details for a specific media file (Admin only)
-app.get('/api/admin/media/details/*', authMiddleware, isAdminMiddleware, async (req, res) => {
+app.get(/\/api\/admin\/media\/details\/(.*)/, authMiddleware, isAdminMiddleware, async (req, res) => {
   try {
-    const relativeFilePath = req.params[0];
+    const relativeFilePath = req.params[0]; // Changed to req.params[0] for RegExp capture group
     if (!relativeFilePath) {
       return res.status(400).json({ message: 'Bad Request: File path is required.' });
     }
@@ -120,7 +120,7 @@ app.get('/api/admin/media/details/*', authMiddleware, isAdminMiddleware, async (
       res.status(404).json({ message: 'Media file not found or not accessible.' });
     }
   } catch (error) {
-    console.error(`Error fetching media details for ${req.params[0]}:`, error);
+    console.error(`Error fetching media details for ${req.params[0]}:`, error); // Changed to req.params[0]
     res.status(500).json({ message: 'Error fetching media details.' });
   }
 });
@@ -265,7 +265,7 @@ app.use(express.static(clientBuildPath));
 
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file. (from main branch, must be last)
-app.get('*', (req, res) => {
+app.get(/(.*)/, (req, res) => { // Changed to RegExp to match anything
   res.sendFile(path.join(clientBuildPath, 'index.html'));
 });
 

@@ -17,35 +17,33 @@ const { getMediaInDirectories, getMediaFileDetails } = require('../mediaScanner'
 const JWT_SECRET = 'your-super-secret-jwt-key-for-dev'; // Consistent with app and other tests
 
 const generateToken = (userId, isAdmin) => {
-  return jwt.sign({ userId, isAdmin }, JWT_SECRET, { expiresIn: '1h' });
+  return jwt.sign({ id: userId, isAdmin }, JWT_SECRET, { expiresIn: '1h' }); // Ensure id field
 };
 
 describe('Admin Media API (/api/admin/media)', () => {
   let adminUser, normalUser, adminToken, normalToken;
 
-  beforeAll(async () => {
+  beforeEach(async () => { // Changed from beforeAll
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash('password123', salt);
 
     adminUser = await User.create({
-      username: 'mediaAdminUser', // Unique username
-      email: 'media_admin@example.com',
+      username: 'mediaAdminUser_' + Date.now(), // Unique username
+      email: 'media_admin_' + Date.now() + '@example.com',
       password: hashedPassword,
       isAdmin: true,
     });
     adminToken = generateToken(adminUser.id, adminUser.isAdmin);
 
     normalUser = await User.create({
-      username: 'mediaNormalUser', // Unique username
-      email: 'media_user@example.com',
+      username: 'mediaNormalUser_' + Date.now(), // Unique username
+      email: 'media_user_' + Date.now() + '@example.com',
       password: hashedPassword,
       isAdmin: false,
     });
     normalToken = generateToken(normalUser.id, normalUser.isAdmin);
-  });
 
-  beforeEach(() => {
-    // Clear all mock implementations and calls before each test
+    // Clear all mock implementations and calls before each test (moved from separate beforeEach)
     jest.clearAllMocks();
   });
 

@@ -9,29 +9,32 @@ const bcrypt = require('bcryptjs');
 const JWT_SECRET = 'your-super-secret-jwt-key-for-dev';
 
 const generateToken = (userId, isAdmin) => {
-  return jwt.sign({ userId, isAdmin }, JWT_SECRET, { expiresIn: '1h' });
+  return jwt.sign({ id: userId, isAdmin }, JWT_SECRET, { expiresIn: '1h' }); // Ensure id field
 };
 
 describe('Admin User Management API (/api/admin/users)', () => {
   let adminUser, normalUser, adminToken, normalToken, createdNormalUserId;
 
-  beforeAll(async () => {
+  beforeEach(async () => { // Changed from beforeAll to beforeEach
     // Create users for testing
     // Hash passwords as your User model / auth system likely expects hashed passwords
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash('password123', salt);
 
+    // Ensure unique usernames if tests run in parallel or if DB is not perfectly clean
+    // For simplicity here, appending a timestamp or using a sequence might be needed for true isolation
+    // However, the global beforeEach in setup.js should handle cleaning.
     adminUser = await User.create({
-      username: 'testAdminUser',
-      email: 'admin@example.com',
+      username: 'testAdminUser_' + Date.now(), // Make username unique for each test run
+      email: 'admin_' + Date.now() + '@example.com',
       password: hashedPassword,
       isAdmin: true,
     });
     adminToken = generateToken(adminUser.id, adminUser.isAdmin);
 
     normalUser = await User.create({
-      username: 'testNormalUser',
-      email: 'user@example.com',
+      username: 'testNormalUser_' + Date.now(), // Make username unique
+      email: 'user_' + Date.now() + '@example.com',
       password: hashedPassword,
       isAdmin: false,
     });
@@ -45,6 +48,9 @@ describe('Admin User Management API (/api/admin/users)', () => {
       const res = await request(app)
         .get('/api/admin/users')
         .set('Authorization', `Bearer ${adminToken}`);
+      if (res.statusCode === 401) {
+        console.log('DEBUG 401 Response Body:', res.body); // Log 401 body
+      }
       expect(res.statusCode).toBe(200);
       expect(Array.isArray(res.body)).toBe(true);
       expect(res.body.length).toBeGreaterThanOrEqual(2); // adminUser and normalUser
@@ -73,7 +79,7 @@ describe('Admin User Management API (/api/admin/users)', () => {
         .set('Authorization', `Bearer ${adminToken}`);
       expect(res.statusCode).toBe(200);
       expect(res.body.id).toBe(createdNormalUserId);
-      expect(res.body.username).toBe('testNormalUser');
+      expect(res.body.username).toBe(normalUser.username); // Use dynamic username
       expect(res.body).not.toHaveProperty('password');
     });
 

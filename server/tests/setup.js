@@ -1,3 +1,10 @@
+const fs = require('fs-extra');
+const path = require('path');
+
+const dbDir = path.join(__dirname, '../database');
+fs.ensureDirSync(dbDir);
+console.log(`[Test Setup] Ensured directory exists: ${dbDir}`);
+
 const { initializeDatabase, sequelize, User, UserMediaProgress, MediaShare } = require('../models'); // Ensure all models are imported if needed for comprehensive truncate
 
 beforeAll(async () => {

@@ -1,6 +1,9 @@
 module.exports = {
   testEnvironment: 'node',
   setupFilesAfterEnv: ['./tests/setup.js'],
+  transformIgnorePatterns: [
+    "/node_modules/(?!express|path-to-regexp|router)/"
+  ],
   // Optional: Ignore certain files from coverage analysis
   // coveragePathIgnorePatterns: [
   //   "/node_modules/",

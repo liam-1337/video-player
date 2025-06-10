@@ -17,35 +17,34 @@ const fsPromises = require('fs').promises; // Get the mocked version
 const JWT_SECRET = 'your-super-secret-jwt-key-for-dev';
 
 const generateToken = (userId, isAdmin) => {
-  return jwt.sign({ userId, isAdmin }, JWT_SECRET, { expiresIn: '1h' });
+  return jwt.sign({ id: userId, isAdmin }, JWT_SECRET, { expiresIn: '1h' }); // Ensure id field
 };
 
 describe('Admin System API (/api/admin/system & /api/admin/logs)', () => {
   let adminUser, normalUser, adminToken, normalToken;
 
-  beforeAll(async () => {
+  beforeEach(async () => { // Changed from beforeAll
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash('password123', salt);
 
     adminUser = await User.create({
-      username: 'systemAdminUser', // Unique username
-      email: 'system_admin@example.com',
+      username: 'systemAdminUser_' + Date.now(), // Unique username
+      email: 'system_admin_' + Date.now() + '@example.com',
       password: hashedPassword,
       isAdmin: true,
     });
     adminToken = generateToken(adminUser.id, adminUser.isAdmin);
 
     normalUser = await User.create({
-      username: 'systemNormalUser', // Unique username
-      email: 'system_user@example.com',
+      username: 'systemNormalUser_' + Date.now(), // Unique username
+      email: 'system_user_' + Date.now() + '@example.com',
       password: hashedPassword,
       isAdmin: false,
     });
     normalToken = generateToken(normalUser.id, normalUser.isAdmin);
-  });
 
-  beforeEach(() => {
-    jest.clearAllMocks(); // Clear mock calls before each test
+    // Clear mock calls before each test (moved from separate beforeEach)
+    jest.clearAllMocks();
   });
 
   // GET /api/admin/system/status
